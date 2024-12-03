@@ -1,0 +1,67 @@
+# cars_encoded_dataframe = pd.get_dummies(cars_dataframe, dtype=int)
+
+# print("series : ")
+# print(cars_series)
+
+# print("dataframe : ")
+# print(cars_dataframe)
+
+
+# print("encoded cars dataframe : ")
+# print(type(cars_encoded_dataframe))
+
+# cars = pd.get_dummies(cars)
+# print(cars)
+# cars_dataframe = pd.DataFrame(cars)
+with open(f"{BASE_DIR}/ANN.pkl", "rb") as f:
+    ANN_model = pickle.load(f)
+
+
+keras_classifier = KerasClassifier(build_fn=lambda: ANN_model, epochs=50, batch_size=10)
+
+
+MODEL_DIR = r"C:/Users/olaro/OneDrive/Masaüstü/FastApi/app/model/ANN.keras"
+ann_model = k3.models.load_model(MODEL_DIR)
+k3.models.save_model()
+import pandas as pd
+import numpy as np
+
+cars_series = pd.Series(["A", "B", "C", "D", "E", "F"])
+cars_encoded_series = pd.get_dummies(cars_series, dtype=int)
+
+# print("encoded cars series : ")
+print(cars_encoded_series)
+array = [0, 1, 0, 0, 0, 0]
+
+columns = cars_encoded_series.columns.tolist()
+
+
+# def get_name(array):
+#     for i in range(6):
+#         if cars_encoded_series.loc[i].tolist() == array:
+#             array1 = cars_encoded_series.loc[i].tolist()
+#             print(array1)
+#             for i, val in enumerate(array1):
+#                 print(i, val)
+#                 if val == 1:
+#                     index = i
+
+#     return columns[index]
+
+
+def get_name(array):
+    input_series = pd.Series(array)
+    print(input_series)
+    result = cars_encoded_series.eq(input_series, axis=0)
+    # print(result)
+    print(result.all().idxmax())
+
+    # Compare each row with the input array
+    #  np.all(df_array[i] == df_array, axis=1)
+    # match_index = np.all(cars_encoded_series == input_series, axis=1)
+    # print(match_index)
+
+
+print(get_name(array))
+
+# print(get_name(array))

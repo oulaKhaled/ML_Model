@@ -1,0 +1,8 @@
+.FastApi/model/Original_dataset.csv
+.FastApi/model/DecsisionTree_model.pkl
+.FastApi/model/KNN_model.pkl
+.FastApi/model/logisticregression33_model.pkl
+.FastApi/model/sklear_pipeline2.pkl
+.FastApi/model/SVM_model.pkl
+.FastApi/model/text.txt
+.FastApi/model/keras_model.pkl
