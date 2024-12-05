@@ -3,4 +3,6 @@ FastApi/app/model/*.pkl
 
 FastApi/app/model/*.keras
 
-FastApi/app/model/text.txt
+FastApi/app/model/*.txt
+/venv
+/.env
