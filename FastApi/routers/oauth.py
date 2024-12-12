@@ -11,14 +11,13 @@ import os
 import dotenv
 import datetime
 from typing import Annotated
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jwt.exceptions import InvalidKeyTypeError
-
+from utils.utils import oauth2_scheme
+from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter()
 
 ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 class UserCredentials(BaseModel):
@@ -31,6 +30,10 @@ SECRET = os.getenv("SECRET")
 ALGORITHM = os.getenv("ALGORITHM")
 
 
+class Token(BaseModel):
+    token: str
+
+
 ## JWT TOKEN AUTHENTICATION
 def create_access_token(data: dict, expires_delta: timedelta):
     to_encode = data.copy()
@@ -41,8 +44,8 @@ def create_access_token(data: dict, expires_delta: timedelta):
     return encoded_jwt
 
 
-def authenticate_user(email: str, password: str, db):
-    user = db.query(models.User).filter(email == models.User.email).first()
+def authenticate_user(username: str, password: str, db):
+    user = db.query(models.User).filter(username == models.User.username).first()
     if user:
         verify_password = pwd_context.verify(password, user.password)
         print("verify_password : ", verify_password)
@@ -59,41 +62,46 @@ def authenticate_user(email: str, password: str, db):
 
 @router.post("/login")
 async def Login(
-    user: UserCredentials,
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(database.get_db),
 ):
-    user_is_authenticated = authenticate_user(
-        email=user.email, password=user.password, db=db
-    )
-    access_token_expires = timedelta(minutes=60)
-    print("user is authenticated ", user_is_authenticated)
+    authenticate_user(username=form_data.username, password=form_data.password, db=db)
+    # print("ACCESS_TOKEN_EXPIRE_MINUTES type : ", type())
+    access_token_expires = timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
+
     token = create_access_token(
-        data={"sub": user.email}, expires_delta=access_token_expires
+        data={"sub": form_data.username}, expires_delta=access_token_expires
     )
     return token
 
 
-@router.post("/get_current_user")
+## Check JWT decoding
 async def get_currnet_user(
     token: Annotated[str, Depends(oauth2_scheme)],
-    db: Session = Depends(database.get_db),
 ):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not find validate cresentials",
     )
-    try:
-        payload = jwt.decode(token, SECRET, [ALGORITHM])
-        print("payload :", payload)
-        email = payload["sub"]
-        print("email : ", email)
-        if email is None:
-            print("here we got an error")
-            raise credentials_exception
-        # token_data = TokenData(username=username)
-    except:
-        print("here we got an error 222")
+    segments = token.split(".")
+    if len(segments) != 3:
+        print("Not enough or too many segments'")
+    payload = jwt.decode(
+        token,
+        key=SECRET,
+        algorithms=[ALGORITHM],
+        options={"verify_signature": False},
+    )
+    print("payload :", payload)
+    username = payload["sub"]
+
+    print("username : ", username)
+    if username is None:
+        print("here we got an error")
         raise credentials_exception
-    user = db.query(models.User).filter(email == models.User.email).first()
-    if user:
-        return user
+    else:
+        return {"username": username}
+
+        # # token_data = TokenData(username=username)
+        # print("here we got an error 222")
+        # raise credentials_exception
