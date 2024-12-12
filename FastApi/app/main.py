@@ -11,7 +11,7 @@ import secrets
 from routers import user, oauth
 import os
 
-SECRET = os.environ("SECRET")
+SECRET = os.getenv("SECRET")
 print("SECRET,", SECRET)
 # Ensure the build_fn is correctly set
 app = FastAPI()
