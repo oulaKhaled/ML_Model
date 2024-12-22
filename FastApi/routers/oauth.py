@@ -3,16 +3,16 @@ from pydantic import EmailStr, BaseModel
 import datetime
 from datetime import timedelta
 from sqlalchemy.orm import Session
-from utils.utils import pwd_context
+from FastApi.utils.utils import pwd_context
 from jose import JWTError, jwt
 import secrets
-from core import models, database
+from FastApi.core import models, database
 import os
 import dotenv
 import datetime
 from typing import Annotated
 from jwt.exceptions import InvalidKeyTypeError
-from utils.utils import oauth2_scheme
+from FastApi.utils.utils import oauth2_scheme
 from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter()

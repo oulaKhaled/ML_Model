@@ -1,7 +1,9 @@
-from .database import Base
-from sqlalchemy import Boolean, String, ForeignKey, Integer, Column, Date
+# from .database import Base
+from sqlalchemy import Boolean, String, ForeignKey, Integer, Column, Date, LargeBinary
 import datetime
 from sqlalchemy_file import FileField, File
+from sqlalchemy.orm import DeclarativeBase
+from .database import Base
 
 
 ## email , password validation
@@ -17,25 +19,24 @@ class User(Base):
 
 class Patient(Base):
     __tablename__ = "Patient"
-    # id = Column(Integer, primary_key=True, nullable=False)
-    user = Column(Integer, ForeignKey("User.id", ondelete="CASCADE"), primary_key=True)
+    id = Column(Integer, primary_key=True, nullable=False)
+    user = Column(Integer, ForeignKey("User.id"), primary_key=False)
     symptoms = Column(String)
     doctor_specialty = Column(String)
 
 
 class Doctor(Base):
     __tablename__ = "Doctor"
-    user = Column(Integer, ForeignKey("User.id", ondelete="CASCADE"), primary_key=True)
+    id = Column(Integer, primary_key=True, nullable=False)
+    user = Column(Integer, ForeignKey("User.id"), primary_key=False)
     symptoms = Column(String)
     disease = Column(String)
 
 
-class Researcher(Base):
-    __tablename__ = "Researcher"
-    user = Column(Integer, ForeignKey("User.id", ondelete="CASCADE"), primary_key=True)
-    dataset = Column(FileField)
+class ML_user(Base):
+    __tablename__ = "ML_user"
+    id = Column(Integer, primary_key=True, nullable=False)
+    user = Column(Integer, ForeignKey("User.id"), primary_key=False)
+    dataset = Column(String)
     algorithm = Column(String)
-    predicted_label = Column(String)
-    # results
-    ## dataset, algorithms, results
-    pass
+    model = Column(LargeBinary)

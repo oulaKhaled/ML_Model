@@ -1,32 +1,47 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, UploadFile, File
 from pydantic import BaseModel, Field
 from fastapi import APIRouter
-from routers.predection import predict_pipeline
-from routers.predection import __version__ as model_version
+from FastApi.routers.predection import predict_pipeline
+from FastApi.routers.predection import __version__ as model_version
 import joblib
 from pathlib import Path
-from core import models
-from core.database import engine
+from FastApi.core import models
+from FastApi.core.database import engine
 import secrets
-from routers import user, oauth
+from FastApi.routers import user, oauth
 import os
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from typing import Annotated
-from utils.utils import oauth2_scheme
-from routers.oauth import get_currnet_user
+from FastApi.utils.utils import oauth2_scheme
+from FastApi.routers.oauth import get_currnet_user
+from FastApi.routers.ml_user import hyperParamter_tuning
+from FastApi.routers import ml_user
+from FastApi.core import models
 
 SECRET = os.getenv("SECRET")
 print("SECRET,", SECRET)
 # Ensure the build_fn is correctly set
 app = FastAPI()
 router = APIRouter()
-models.Base.metadata.create_all(bind=engine)
+# models.Base.metadata.create_all(bind=engine)
 BASE_DIR = Path(__file__).resolve(strict=True).parent
+
+models.Base.metadata.create_all(bind=engine)
+
 
 app.include_router(user.router)
 app.include_router(oauth.router)
 
+app.include_router(ml_user.router)
+
+
 user_dependency = Annotated[dict, Depends(get_currnet_user)]
+
+
+class UploadData:
+    dataset: UploadFile = File(...)
+    algorithm: str
+    target: str
 
 
 class SymptomIn(BaseModel):
@@ -44,10 +59,7 @@ def home():
 
 
 @app.post("/predict")
-async def predict(
-    payload: SymptomIn,
-    token: Annotated[str, Depends(oauth2_scheme)],
-):
+async def predict(payload: SymptomIn, token: Annotated[str, Depends(oauth2_scheme)]):
     disease = predict_pipeline(payload.symptoms)
     return {f"Disease from main function ": disease}
 
@@ -58,3 +70,8 @@ def user_data(user: user_dependency):
         raise HTTPException(status_code=401, detail="Authentication Failed")
     else:
         return {"User": user}
+
+
+# @app.post("/researcher")
+# async def check_models(data: UploadData):
+#     pass
