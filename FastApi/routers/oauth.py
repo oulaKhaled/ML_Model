@@ -1,9 +1,17 @@
-from fastapi import FastAPI, APIRouter, Depends, status, HTTPException
+from fastapi import (
+    FastAPI,
+    APIRouter,
+    Depends,
+    status,
+    HTTPException,
+    Request,
+    Security,
+)
 from pydantic import EmailStr, BaseModel
 import datetime
 from datetime import timedelta
 from sqlalchemy.orm import Session
-from FastApi.utils.utils import pwd_context
+
 from jose import JWTError, jwt
 import secrets
 from FastApi.core import models, database
@@ -12,7 +20,7 @@ import dotenv
 import datetime
 from typing import Annotated
 from jwt.exceptions import InvalidKeyTypeError
-from FastApi.utils.utils import oauth2_scheme
+from FastApi.utils.utils import oauth2_scheme, pwd_context
 from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter()
@@ -53,6 +61,7 @@ def authenticate_user(username: str, password: str, db):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="password is not valid"
             )
+        return user
     else:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -60,19 +69,24 @@ def authenticate_user(username: str, password: str, db):
         )
 
 
-@router.post("/login")
+@router.post("/token")
 async def Login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(database.get_db),
 ):
-    authenticate_user(username=form_data.username, password=form_data.password, db=db)
+    auth_user = authenticate_user(
+        username=form_data.username, password=form_data.password, db=db
+    )
     # print("ACCESS_TOKEN_EXPIRE_MINUTES type : ", type())
     access_token_expires = timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
 
     token = create_access_token(
-        data={"sub": form_data.username}, expires_delta=access_token_expires
+        data={"sub": form_data.username, "id": auth_user.id},
+        expires_delta=access_token_expires,
     )
-    return token
+    print("roken : ", token)
+
+    return {"access_token": token, "token_type": "bearer"}
 
 
 ## Check JWT decoding
@@ -94,13 +108,13 @@ async def get_currnet_user(
     )
     print("payload :", payload)
     username = payload["sub"]
+    id = payload["id"]
 
-    print("username : ", username)
     if username is None:
         print("here we got an error")
         raise credentials_exception
     else:
-        return {"username": username}
+        return payload
 
         # # token_data = TokenData(username=username)
         # print("here we got an error 222")

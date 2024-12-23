@@ -19,12 +19,11 @@ from sklearn.model_selection import (
     ShuffleSplit,
 )
 from FastApi.utils.utils import oauth2_scheme
-
 from FastApi.core.database import get_db
 from sqlalchemy.orm import Session
 from typing import List
 import pickle
-from fastapi import APIRouter, UploadFile, File, Depends
+from fastapi import APIRouter, UploadFile, File, Depends, Request
 from sklearn.metrics import (
     f1_score,
     precision_score,
@@ -34,6 +33,7 @@ from sklearn.metrics import (
 )
 from FastApi.core import models
 from typing import Annotated
+from FastApi.routers.oauth import get_currnet_user
 
 router = APIRouter()
 encoder = LabelEncoder()
@@ -250,6 +250,7 @@ def fit_model(x, y, final_model):
 
 @router.post("/train_model", response_model=None)
 def train_model(
+    user: Annotated[dict, Depends(get_currnet_user)],
     token: Annotated[str, Depends(oauth2_scheme)],
     algorithm: str,
     target: str,
@@ -282,7 +283,10 @@ def train_model(
     )
 
     new_obj = models.ML_user(
-        user=1, dataset=dataset.filename, algorithm=algorithm, model=serialized_model
+        user=user["id"],
+        dataset=dataset.filename,
+        algorithm=algorithm,
+        model=serialized_model,
     )
     db.add(new_obj)
     db.commit()
@@ -295,11 +299,20 @@ def train_model(
 
 @router.post("/predict_researcher")
 def predict_pipeline(
-    trained_model_id: int, new_x: List[str], db: Session = Depends(get_db)
+    user: Annotated[dict, Depends(get_currnet_user)],
+    token: Annotated[str, Depends(oauth2_scheme)],
+    request: Request,
+    trained_model_id: int,
+    new_x: List[str],
+    db: Session = Depends(get_db),
 ):
 
+    # print("Authorization : ", request.headers.get("Authorization"))
+    # print("user , ", user)
     trained_model = (
-        db.query(models.ML_user).filter(models.ML_user.id == trained_model_id).first()
+        db.query(models.ML_user)
+        .filter(models.ML_user.id == trained_model_id and models.User.id == user["id"])
+        .first()
     )
     model_data = pickle.loads(trained_model.model)
     final_model = model_data["model"]
@@ -309,7 +322,7 @@ def predict_pipeline(
 
     """
     to transform entered data to numerical values so model can predict disease
-    #"""
+    """
 
     data = []
     new_x = new_x[0].split(",")
@@ -317,7 +330,9 @@ def predict_pipeline(
     print("data_features :", data_features)
     for n in range(len(new_x)):
         feature = [
-            i for i, val in enumerate(data_features) if data_features[i] == new_x[n]
+            i
+            for i, val in enumerate(data_features)
+            if data_features[i] == " " + new_x[n]
         ]
         print(feature)
         data.append(feature[0] + 1)

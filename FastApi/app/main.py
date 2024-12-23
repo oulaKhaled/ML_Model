@@ -1,8 +1,8 @@
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File
 from pydantic import BaseModel, Field
 from fastapi import APIRouter
-from FastApi.routers.predection import predict_pipeline
-from FastApi.routers.predection import __version__ as model_version
+from FastApi.routers.Disease_predection import predict_pipeline
+from FastApi.routers.Disease_predection import __version__ as model_version
 import joblib
 from pathlib import Path
 from FastApi.core import models
@@ -28,14 +28,12 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent
 
 models.Base.metadata.create_all(bind=engine)
 
+user_dependency = Annotated[models.User, Depends(get_currnet_user)]
 
 app.include_router(user.router)
 app.include_router(oauth.router)
 
 app.include_router(ml_user.router)
-
-
-user_dependency = Annotated[dict, Depends(get_currnet_user)]
 
 
 class UploadData:
@@ -65,13 +63,9 @@ async def predict(payload: SymptomIn, token: Annotated[str, Depends(oauth2_schem
 
 
 @app.get("/user")
-def user_data(user: user_dependency):
+def user_data(user=Depends(get_currnet_user)):
+    print("User check  : ", user)
     if user is None:
         raise HTTPException(status_code=401, detail="Authentication Failed")
     else:
         return {"User": user}
-
-
-# @app.post("/researcher")
-# async def check_models(data: UploadData):
-#     pass
