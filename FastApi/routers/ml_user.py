@@ -297,7 +297,7 @@ def train_model(
     # print(oauth2_scheme.model)
 
 
-@router.post("/predict_researcher")
+@router.post("/predict_ml_user")
 def predict_pipeline(
     user: Annotated[dict, Depends(get_currnet_user)],
     token: Annotated[str, Depends(oauth2_scheme)],
