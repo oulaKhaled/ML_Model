@@ -23,7 +23,7 @@ from FastApi.core.database import get_db
 from sqlalchemy.orm import Session
 from typing import List
 import pickle
-from fastapi import APIRouter, UploadFile, File, Depends, Request
+from fastapi import APIRouter, UploadFile, File, Depends, Request, HTTPException
 from sklearn.metrics import (
     f1_score,
     precision_score,
@@ -40,7 +40,7 @@ encoder = LabelEncoder()
 count1 = 0
 
 
-def data_preprocessing_1(dataset, target):
+def data_preprocessing(dataset, target, select):
     dataset = pd.read_csv(dataset)
     unique_values = []
     ## this loop is for creating new column called unique_values that contain each row's values
@@ -54,50 +54,33 @@ def data_preprocessing_1(dataset, target):
             unique_values.append(value[1:])
     dataset["unique_values"] = unique_values
     column_values = dataset.drop([target, "unique_values"], axis=1).values.ravel()
-    data_features = pd.unique(column_values).tolist()
-    data_features = [
-        i for i in data_features if str(i) != "nan"
-    ]  ## get all unique features in dataset
-    # ## Creating DataFrame with binary indicators
-    new_data = pd.DataFrame(0, columns=data_features, index=dataset.index)
-    new_data[f"{target}"] = dataset[f"{target}"]
-    for col in data_features:
-        new_data[col] = dataset["unique_values"].apply(lambda x: 1 if col in x else 0)
-    x = new_data.drop([f"{target}"], axis=1)
-    y = dataset[f"{target}"]
-    y = encoder.fit_transform(y)
-    return x, y
-
-
-def data_preprocessing_2(dataset, target):
-    dataset = pd.read_csv(dataset)
-    unique_values = []
-    ## this loop is for creating new column called unique_values that contain each row's values
-    for i in range(len(dataset)):
-        value = dataset.iloc[i].values.tolist()  ## values of each row
-        if 0 in value:
-            unique_values.append(
-                value[1 : value.index(0)]
-            )  ## if value is 0 only append data in row that is not 0
-        else:
-            unique_values.append(value[1:])
-    dataset["unique_values"] = unique_values
-    column_values = dataset.drop([target, "unique_values"], axis=1).values.ravel()
-    data_features = pd.unique(column_values).tolist()
+    data_features = pd.unique(column_values.astype(str)).tolist()
     data_features = [i for i in data_features if str(i) != "nan"]
-
-    new_data2 = pd.DataFrame(columns=dataset.columns, index=dataset.index)
-    x2 = new_data2.drop([f"{target}", "unique_values"], axis=1)
-    columns = x2.columns.tolist()
-    columns
-    for i in columns:
-        x2[i] = dataset[i].apply(
-            lambda x2: data_features.index(x2) + 1 if x2 in data_features else 0
-        )
     encoder = LabelEncoder()
-    y2 = dataset[f"{target}"]
-    y2 = encoder.fit_transform(y2)
-    return x2, y2, data_features, encoder
+    if select == "first":
+        new_data = pd.DataFrame(0, columns=data_features, index=dataset.index)
+        new_data[f"{target}"] = dataset[f"{target}"]
+        for col in data_features:
+            string_val = str(col)
+            new_data[string_val] = dataset["unique_values"].apply(
+                lambda x: 1 if col in x else 0
+            )
+        x = new_data.drop([f"{target}"], axis=1)
+        y = dataset[f"{target}"]
+        y = encoder.fit_transform(y)
+        return x, y, data_features, encoder
+    else:
+        new_data2 = pd.DataFrame(columns=dataset.columns, index=dataset.index)
+        x2 = new_data2.drop([f"{target}", "unique_values"], axis=1)
+        columns = x2.columns.tolist()
+        columns
+        for i in columns:
+            x2[i] = dataset[i].apply(
+                lambda x2: data_features.index(x2) + 1 if x2 in data_features else 0
+            )
+        y2 = dataset[f"{target}"]
+        y2 = encoder.fit_transform(y2)
+        return x2, y2, data_features, encoder
 
 
 def hyperParamter_tuning(model, x, y):
@@ -250,6 +233,7 @@ def fit_model(x, y, final_model):
 
 @router.post("/train_model", response_model=None)
 def train_model(
+    select: str,
     user: Annotated[dict, Depends(get_currnet_user)],
     token: Annotated[str, Depends(oauth2_scheme)],
     algorithm: str,
@@ -258,27 +242,26 @@ def train_model(
     db: Session = Depends(get_db),
 ):
     ## dataset validation, csv
-    # if not dataset.endswith(".csv"):
-    #     return "only excepect .csv file"
-    # dataset = dataset.file.read()
-    # dataset.write(dataset.file.read())
 
-    x, y, data_features, encoder = data_preprocessing_2(
-        dataset=dataset.file, target=target
+    if not dataset.content_type == "text/csv":
+        raise HTTPException(status_code=401, detail="Only Accepts .csv Files")
+
+    x, y, data_features, encoder = data_preprocessing(
+        dataset=dataset.file, target=target, select=select
     )
 
     final_model = hyperParamter_tuning(model=algorithm, x=x, y=y)
     print(final_model)
     cross_validation(final_model, x, y)
     fit_model(final_model=final_model, x=x, y=y)
-    len_x = len(x.columns)
-    # with open("first11.pkl", "wb") as f:
+
     serialized_model = pickle.dumps(
         {
             "model": final_model,
             "encoder": encoder,
             "data_features": data_features,
             "len_x": len(x.columns),
+            "select": select,
         },
     )
 
@@ -292,9 +275,7 @@ def train_model(
     db.commit()
     db.refresh(new_obj)
 
-    return new_obj
-
-    # print(oauth2_scheme.model)
+    return {"The new model has been saved successfully"}
 
 
 @router.post("/predict_ml_user")
@@ -307,8 +288,6 @@ def predict_pipeline(
     db: Session = Depends(get_db),
 ):
 
-    # print("Authorization : ", request.headers.get("Authorization"))
-    # print("user , ", user)
     trained_model = (
         db.query(models.ML_user)
         .filter(models.ML_user.id == trained_model_id and models.User.id == user["id"])
@@ -319,29 +298,37 @@ def predict_pipeline(
     encoder = model_data["encoder"]
     data_features = model_data["data_features"]
     len_x = model_data["len_x"]
+    select = model_data["select"]
 
     """
     to transform entered data to numerical values so model can predict disease
     """
 
-    data = []
+    data1 = [0] * len_x
+    data2 = []
     new_x = new_x[0].split(",")
-    print("new_x", new_x)
-    print("data_features :", data_features)
+    # print("new_x", new_x)
+    # print("data_features :", data_features)
     for n in range(len(new_x)):
         feature = [
             i
             for i, val in enumerate(data_features)
-            if data_features[i] == " " + new_x[n]
+            if data_features[i] == "" + new_x[n]
         ]
         print(feature)
-        data.append(feature[0] + 1)
-    count = len_x - len(data)
-    data = [data + [0] * count]
-    y_pred = final_model.predict(data)
-    print(" y_pred before:", y_pred)
+        if select == "second":
+            data2.append(feature[0] + 1)
+        else:
+            data1[feature[0]] = 1
+    if select == "second":
+        # print("we used second data preprocessin")
+        count = len_x - len(data2)
+        data2 = [data2 + [0] * count]
+        y_pred = final_model.predict(data2)
+    else:
+        # print("we used first data preprocessin")
+        y_pred = final_model.predict([data1])
+    # print(" y_pred before:", y_pred)
     y_pred = encoder.inverse_transform(y_pred)
-    print(" y_pred after:", y_pred)
-
-
-#   new_x, algorithm: str,
+    # print(" y_pred after:", y_pred)
+    return y_pred[0]
