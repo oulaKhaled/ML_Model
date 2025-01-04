@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 from scikeras.wrappers import KerasClassifier
 from FastApi.utils.utils import features
-
+import tensorflow as tf
 from tensorflow.python.keras.models import load_model
 import tf_keras as k3
 from sklearn.pipeline import Pipeline
@@ -16,7 +16,7 @@ import dill
 from keras import models
 from FastApi.utils.utils import baseline_model
 import os
-
+import numpy as np
 
 __version__ = "0.1.0"
 
@@ -31,12 +31,6 @@ y2 = dataset["Disease"]
 df = pd.DataFrame(y2)
 
 y_encoded = pd.get_dummies(df, dtype=int)
-
-
-def get_disease_name(array):
-    input_series = pd.Series(array)
-    result = y_encoded.eq(input_series, axis=0)
-    return result.all().idxmax()
 
 
 ANNs = models.load_model(f"{MODEL_DIR}/keras_model.keras")
@@ -58,13 +52,12 @@ def predict_pipeline(symptoms):
     data = []
     for n in range(len(symptoms)):
         symptom = [
-            i
-            for i, val in enumerate(features)
-            if features[i] == " " + symptoms[n][f"symptom"]
+            i for i, val in enumerate(features) if features[i] == " " + symptoms[n]
         ]
         data.append(symptom[0])
     count = 17 - len(data)
     data = [data + [0] * count]
     y_pred = pipeline.predict(data)
-    result = get_disease_name(y_pred[0]).split("Disease_")
-    return result[1]
+    predicted_class = np.argmax(y_pred, axis=1)
+    predicted_disease = y_encoded.columns[predicted_class][0].split("Disease_")[1]
+    return predicted_disease
