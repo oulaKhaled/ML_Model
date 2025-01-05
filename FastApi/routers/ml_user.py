@@ -36,8 +36,13 @@ from typing import Annotated
 from FastApi.routers.oauth import get_currnet_user
 
 router = APIRouter()
-encoder = LabelEncoder()
-count1 = 0
+
+
+class TrainModelData(BaseModel):
+    select: str
+    algorithm: str
+    target: str
+    dataset: UploadFile = File(...)
 
 
 def data_preprocessing(dataset, target, select):
@@ -233,24 +238,21 @@ def fit_model(x, y, final_model):
 
 @router.post("/train_model", response_model=None)
 def train_model(
-    select: str,
+    dataIn: TrainModelData,
     user: Annotated[dict, Depends(get_currnet_user)],
     token: Annotated[str, Depends(oauth2_scheme)],
-    algorithm: str,
-    target: str,
-    dataset: UploadFile = File(...),
     db: Session = Depends(get_db),
 ):
     ## dataset validation, csv
 
-    if not dataset.content_type == "text/csv":
+    if not dataIn.dataset.content_type == "text/csv":
         raise HTTPException(status_code=401, detail="Only Accepts .csv Files")
 
     x, y, data_features, encoder = data_preprocessing(
-        dataset=dataset.file, target=target, select=select
+        dataset=dataIn.dataset.file, target=dataIn.target, select=dataIn.select
     )
 
-    final_model = hyperParamter_tuning(model=algorithm, x=x, y=y)
+    final_model = hyperParamter_tuning(model=dataIn.algorithm, x=x, y=y)
     print(final_model)
     cross_validation(final_model, x, y)
     fit_model(final_model=final_model, x=x, y=y)
@@ -261,14 +263,14 @@ def train_model(
             "encoder": encoder,
             "data_features": data_features,
             "len_x": len(x.columns),
-            "select": select,
+            "select": dataIn.select,
         },
     )
 
     new_obj = models.ML_user(
         user=user["id"],
-        dataset=dataset.filename,
-        algorithm=algorithm,
+        dataset=dataIn.dataset.filename,
+        algorithm=dataIn.algorithm,
         model=serialized_model,
     )
     db.add(new_obj)
@@ -279,10 +281,9 @@ def train_model(
 
 
 @router.post("/predict_ml_user")
-def predict_pipeline(
+def predict_model(
     user: Annotated[dict, Depends(get_currnet_user)],
     token: Annotated[str, Depends(oauth2_scheme)],
-    request: Request,
     trained_model_id: int,
     new_x: List[str],
     db: Session = Depends(get_db),
@@ -307,8 +308,6 @@ def predict_pipeline(
     data1 = [0] * len_x
     data2 = []
     new_x = new_x[0].split(",")
-    # print("new_x", new_x)
-    # print("data_features :", data_features)
     for n in range(len(new_x)):
         feature = [
             i
@@ -321,14 +320,10 @@ def predict_pipeline(
         else:
             data1[feature[0]] = 1
     if select == "second":
-        # print("we used second data preprocessin")
         count = len_x - len(data2)
         data2 = [data2 + [0] * count]
         y_pred = final_model.predict(data2)
     else:
-        # print("we used first data preprocessin")
         y_pred = final_model.predict([data1])
-    # print(" y_pred before:", y_pred)
     y_pred = encoder.inverse_transform(y_pred)
-    # print(" y_pred after:", y_pred)
     return y_pred[0]
