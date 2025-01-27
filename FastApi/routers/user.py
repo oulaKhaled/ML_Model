@@ -13,7 +13,6 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str
     confirm_password: str
-    role: str
 
 
 class UserResponse(BaseModel):
@@ -36,7 +35,6 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     new_user = models.User(
         email=user.email,
         password=hashed_password,
-        role=user.role,
         username=user.username,
     )
     db.add(new_user)

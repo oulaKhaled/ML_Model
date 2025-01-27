@@ -13,7 +13,6 @@ class User(Base):
     username = Column(String(60), nullable=False)
     email = Column(String, nullable=False, unique=True)
     password = Column(String, nullable=False)
-    # role = Column(String, nullable=False)
     created_at = Column(Date, default=datetime.date.today())
 
 

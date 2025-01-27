@@ -38,11 +38,12 @@ from FastApi.routers.oauth import get_currnet_user
 router = APIRouter()
 
 
-class TrainModelData(BaseModel):
-    select: str
-    algorithm: str
-    target: str
-    dataset: UploadFile = File(...)
+# class TrainModelData(BaseModel):
+#     select: str
+#     algorithm: str
+#     target: str
+
+# dataIn: TrainModelData,
 
 
 def data_preprocessing(dataset, target, select):
@@ -238,21 +239,24 @@ def fit_model(x, y, final_model):
 
 @router.post("/train_model", response_model=None)
 def train_model(
-    dataIn: TrainModelData,
+    select: str,
+    algorithm: str,
+    target: str,
     user: Annotated[dict, Depends(get_currnet_user)],
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db),
+    dataset: UploadFile = File(...),
 ):
     ## dataset validation, csv
 
-    if not dataIn.dataset.content_type == "text/csv":
+    if not dataset.content_type == "text/csv":
         raise HTTPException(status_code=401, detail="Only Accepts .csv Files")
 
     x, y, data_features, encoder = data_preprocessing(
-        dataset=dataIn.dataset.file, target=dataIn.target, select=dataIn.select
+        dataset=dataset.file, target=target, select=select
     )
 
-    final_model = hyperParamter_tuning(model=dataIn.algorithm, x=x, y=y)
+    final_model = hyperParamter_tuning(model=algorithm, x=x, y=y)
     print(final_model)
     cross_validation(final_model, x, y)
     fit_model(final_model=final_model, x=x, y=y)
@@ -263,14 +267,14 @@ def train_model(
             "encoder": encoder,
             "data_features": data_features,
             "len_x": len(x.columns),
-            "select": dataIn.select,
+            "select": select,
         },
     )
 
     new_obj = models.ML_user(
         user=user["id"],
-        dataset=dataIn.dataset.filename,
-        algorithm=dataIn.algorithm,
+        dataset=dataset.filename,
+        algorithm=algorithm,
         model=serialized_model,
     )
     db.add(new_obj)
@@ -280,7 +284,7 @@ def train_model(
     return {"The new model has been saved successfully"}
 
 
-@router.post("/predict_ml_user")
+@router.post("/predict_using_trained_model")
 def predict_model(
     user: Annotated[dict, Depends(get_currnet_user)],
     token: Annotated[str, Depends(oauth2_scheme)],
@@ -312,7 +316,7 @@ def predict_model(
         feature = [
             i
             for i, val in enumerate(data_features)
-            if data_features[i] == "" + new_x[n]
+            if data_features[i] == " " + new_x[n]
         ]
         print(feature)
         if select == "second":
