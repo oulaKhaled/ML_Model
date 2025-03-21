@@ -7,7 +7,7 @@ from pathlib import Path
 from FastApi.core import models
 from FastApi.core.database import engine
 import secrets
-from FastApi.routers import user, oauth, doctor
+from FastApi.routers import user, oauth, doctor, patient
 import os
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from typing import Annotated
@@ -30,6 +30,7 @@ app.include_router(user.router)
 app.include_router(oauth.router)
 app.include_router(ml_user.router)
 app.include_router(doctor.router)
+app.include_router(patient.router)
 
 
 @app.get("/")

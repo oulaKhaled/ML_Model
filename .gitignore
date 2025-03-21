@@ -6,3 +6,4 @@ FastApi/app/model/*.keras
 FastApi/app/model/*.txt
 /venv
 /.env
+/Modelfile
