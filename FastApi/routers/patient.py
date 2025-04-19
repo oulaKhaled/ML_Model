@@ -9,7 +9,7 @@ from FastApi.utils.utils import oauth2_scheme
 from typing import Annotated
 from sqlalchemy.orm import Session
 
-model = "doctor"
+# model = "doctor"
 client = ollama.Client()
 
 
@@ -27,6 +27,7 @@ async def predict_doctor_specality(
     db: Session = Depends(get_db),
 ):
     disease = predict_disease(symptoms=symptoms.symptoms)
+    # print(" Predicted Disease , ", disease)
     prompt = f"I will give you a disease name , I want you to choose a appropriate doctor type for the disease, please just answer with doctor type, don't add any other sentences or words, The disease is {disease}"
     response = client.generate(model=model2, prompt=prompt)
     # response = client.generate(model=model, prompt=disease)
