@@ -27,19 +27,19 @@ async def predict_doctor_specality(
     db: Session = Depends(get_db),
 ):
     disease = predict_disease(symptoms=symptoms.symptoms)
-    # print(" Predicted Disease , ", disease)
+    print(" Predicted Disease , ", disease)
     prompt = f"I will give you a disease name , I want you to choose a appropriate doctor type for the disease, please just answer with doctor type, don't add any other sentences or words, The disease is {disease}"
     response = client.generate(model=model2, prompt=prompt)
     # response = client.generate(model=model, prompt=disease)
     new_obj = Patient(
         user=user["id"], symptoms=symptoms.symptoms, doctor_specialty=response.response
     )
-    print(" response from Doctor LLM : ")
+    print(" response from LLM : ")
     print(response.response)
     db.add(new_obj)
     db.commit()
     db.refresh(new_obj)
-    return {"Doctor specality from doctor LLM: ", response.response}
+    return {"Doctor specality from LLM: ", response.response}
 
 
 # @router.post("/doctor_speciality2")

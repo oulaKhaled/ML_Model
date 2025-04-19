@@ -70,10 +70,10 @@ def predict_disease(symptoms):
     y_pred = pipeline.predict(data)
     predicted_class = np.argmax(y_pred, axis=1)
     predicted_disease = y_encoded.columns[predicted_class][0].split("Disease_")[1]
-    print(
-        "predicted disease form predict disease method in Doctor file : ",
-        predicted_disease,
-    )
+    # print(
+    #     "predicted disease form predict disease method in Doctor file : ",
+    #     predicted_disease,
+    # )
     return predicted_disease
 
 
