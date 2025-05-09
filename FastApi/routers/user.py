@@ -39,7 +39,6 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     )
     db.add(new_user)
     # Commits the transaction to save the new user in the database.
-    db.commit()
     db.refresh(new_user)
     return new_user
 

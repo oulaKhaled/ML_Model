@@ -4,7 +4,7 @@ import pickle
 from pathlib import Path
 from FastApi.utils.utils import features
 import os
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
@@ -34,6 +34,7 @@ from sklearn.metrics import (
 from FastApi.core import models
 from typing import Annotated
 from FastApi.routers.oauth import get_currnet_user
+from fastapi import Form
 
 router = APIRouter()
 
@@ -239,12 +240,15 @@ def fit_model(x, y, final_model):
 
 @router.post("/train_model", response_model=None)
 def train_model(
-    select: str,
-    algorithm: str,
-    target: str,
+    # select: str,
+    # algorithm: str,
+    # target: str,
     user: Annotated[dict, Depends(get_currnet_user)],
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db),
+    select: str = Form(...),
+    algorithm: str = Form(...),
+    target: str = Form(...),
     dataset: UploadFile = File(...),
 ):
     ## dataset validation, csv
@@ -277,6 +281,8 @@ def train_model(
         algorithm=algorithm,
         model=serialized_model,
     )
+    print("DATASET , ", dataset)
+
     db.add(new_obj)
     db.commit()
     db.refresh(new_obj)
@@ -298,6 +304,7 @@ def predict_model(
         .filter(models.ML_user.id == trained_model_id and models.User.id == user["id"])
         .first()
     )
+    print("trained_model :", trained_model.algorithm)
     model_data = pickle.loads(trained_model.model)
     final_model = model_data["model"]
     encoder = model_data["encoder"]
@@ -331,3 +338,19 @@ def predict_model(
         y_pred = final_model.predict([data1])
     y_pred = encoder.inverse_transform(y_pred)
     return y_pred[0]
+
+
+@router.get("/user_model")
+def user_model(
+    user: Annotated[dict, Depends(get_currnet_user)],
+    token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_db),
+):
+
+    trained_model = (
+        db.query(models.ML_user).filter(models.ML_user.user == user["id"]).all()
+    )
+    trained_model_algorithm = [i.algorithm for i in trained_model]
+    trained_model_ID = [i.id for i in trained_model]
+
+    return trained_model_ID

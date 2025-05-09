@@ -19,7 +19,9 @@ import os
 import dotenv
 import datetime
 from typing import Annotated
-from jwt.exceptions import InvalidKeyTypeError
+from jose import ExpiredSignatureError
+
+# from jwt.exceptions import InvalidKeyTypeError
 from FastApi.utils.utils import oauth2_scheme, pwd_context
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -52,7 +54,9 @@ def create_access_token(data: dict, expires_delta: timedelta):
     return encoded_jwt
 
 
-def authenticate_user(username: str, password: str, db):
+def authenticate_user(
+    username: str, password: str, db: Session = Depends(database.get_db)
+):
     user = db.query(models.User).filter(username == models.User.username).first()
     if user:
         verify_password = pwd_context.verify(password, user.password)
@@ -77,6 +81,7 @@ async def Login(
     auth_user = authenticate_user(
         username=form_data.username, password=form_data.password, db=db
     )
+    print("sended DATA :", form_data)
     # print("ACCESS_TOKEN_EXPIRE_MINUTES type : ", type())
     access_token_expires = timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
 
@@ -85,8 +90,12 @@ async def Login(
         expires_delta=access_token_expires,
     )
     print("roken : ", token)
-
-    return {"access_token": token, "token_type": "bearer"}
+    print("oauthsechma ,", oauth2_scheme)
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "access_token_expires": access_token_expires,
+    }
 
 
 ## Check JWT decoding
@@ -100,15 +109,20 @@ async def get_currnet_user(
     segments = token.split(".")
     if len(segments) != 3:
         print("Not enough or too many segments'")
-    payload = jwt.decode(
-        token,
-        key=SECRET,
-        algorithms=[ALGORITHM],
-        options={"verify_signature": False},
-    )
-    print("payload :", payload)
-    username = payload["sub"]
-    id = payload["id"]
+    try:
+        payload = jwt.decode(
+            token,
+            key=SECRET,
+            algorithms=[ALGORITHM],
+            options={"verify_signature": False},
+        )
+        print("payload :", payload)
+        username = payload["sub"]
+        id = payload["id"]
+    except ExpiredSignatureError:  # <---- this one
+        raise HTTPException(status_code=403, detail="token has been expired")
+    except JWTError:
+        raise credentials_exception
 
     if username is None:
         print("here we got an error")

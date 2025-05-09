@@ -16,7 +16,7 @@ from FastApi.routers.oauth import get_currnet_user
 from FastApi.routers.ml_user import hyperParamter_tuning
 from FastApi.routers import ml_user
 from FastApi.core import models
-
+from fastapi.middleware.cors import CORSMiddleware
 
 # Ensure the build_fn is correctly set
 app = FastAPI()
@@ -44,3 +44,13 @@ def user_data(user=Depends(get_currnet_user)):
         raise HTTPException(status_code=401, detail="Authentication Failed")
     else:
         return {"User": user}
+
+
+origins = ["http://localhost:5173"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
