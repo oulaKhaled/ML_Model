@@ -40,3 +40,5 @@ class ML_user(Base):
     dataset = Column(String)
     algorithm = Column(String)
     model = Column(LargeBinary)
+    accuracy = Column(String)
+    target = Column(String)

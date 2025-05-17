@@ -10,6 +10,45 @@
 
 
 }
+/* From Uiverse.io by barisdogansutcu */ 
+.rotating-circle {
+ width: 3.25em;
+ transform-origin: center;
+ animation: rotate4 2s linear infinite;
+}
+
+circle {
+ fill: none;
+ stroke: hsl(214, 97%, 59%);
+ stroke-width: 2;
+ stroke-dasharray: 1, 200;
+ stroke-dashoffset: 0;
+ stroke-linecap: round;
+ animation: dash4 1.5s ease-in-out infinite;
+ 
+}
+
+@keyframes rotate4 {
+ 100% {
+  transform: rotate(360deg);
+ }
+}
+
+@keyframes dash4 {
+ 0% {
+  stroke-dasharray: 1, 200;
+  stroke-dashoffset: 0;
+ }
+
+ 50% {
+  stroke-dasharray: 90, 200;
+  stroke-dashoffset: -35px;
+ }
+
+ 100% {
+  stroke-dashoffset: -125px;
+ }
+}
 
 .logo {
   height: 6em;
@@ -102,13 +141,13 @@ h1,h2,h3,h4,h5,h6{
 
 #button2{
 
-  height:150px;
-  width:300px;
+  height:180px;
+  width:320px;
   background-color:#FF7B7B;
 
- margin-left: 40px;
- margin-right: 40px;
- margin-top: 20px;
+ margin-left: 60px;
+ margin-right: 60px;
+ margin-top: 70px;
  
  color: white;
 }
@@ -148,51 +187,15 @@ h1,h2,h3,h4,h5,h6{
   }
 }
 
-.dropdown-menu {
-  top: 280px;
-}
-@media (max-width: 992px) {
-  .dropdown-menu {
-    top: 320px;
-  }
-}
-/* @media (max-width: 965px) {
-  .dropdown-menu {
-    width: 320px;
-  }
-} */
 
-@media (max-width: 875px) {
-  .dropdown-menu {
-    top: 265px;
-  }
-}
-@media (max-width: 535px) {
-  .dropdown-menu {
-    top: 300px;
-  }
-}
-@media (max-width: 327px) {
-  .dropdown-menu {
-    top: 325px;
-  }
-}
-@media (max-width: 275px) {
-  .dropdown-menu {
-    top: 290px;
-  }
-}
+
+
+
 
  #my_buttons{
   padding-top:100px
  }
-@media screen and (max-width: 949px) {
-  
-  #my_buttons{
 
-/* padding-left: 390px; */
-  }
-}
 @media screen and (max-width: 949px) {
   #my_buttons {
     padding-left: 10px;
@@ -224,7 +227,8 @@ bottom: 10px;
   z-index: 1000;
 }
 #button3{
-
+width:200px; 
+height: 80px;
   margin-top: 10px;
   background-color:#FF7B7B;
 
@@ -243,37 +247,3 @@ bottom: 10px;
  height:100%
 }
 /************ ML USER PAGE **********/
-
-/* From Uiverse.io by csemszepp */
-/* From Uiverse.io by ariba_9087 */
-/* From Uiverse.io by elijahgummer */
-/* .container3 {
-  width: 100%;
-  height: 100%;
-  background: lightblue;
-  position: relative;
-  overflow: hidden;
-}
-
-.container3::before {
-  content: "";
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, #3498db 10%, transparent 20%),
-    radial-gradient(circle, transparent 10%, #3498db 20%);
-  background-size: 30px 30px; /* Adjust the size of the pattern */
-  /* animation: moveBackground 8s linear infinite; /* Adjust the animation duration and timing function */
-
-/* 
-@keyframes moveBackground {
-  0% {
-    transform: translate(0, 0);
-  }
-  100% {
-    transform: translate(20%, 20%);
-  }
-} */ 
-

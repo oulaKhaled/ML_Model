@@ -93,7 +93,10 @@ def data_preprocessing(dataset, target, select):
 def hyperParamter_tuning(model, x, y):
     if model == "logisticregression":
         pipeline = Pipeline(
-            [("scaler", StandardScaler()), ("logisticregression", LogisticRegression())]
+            [
+                ("scaler", StandardScaler()),
+                ("logisticregression", LogisticRegression()),
+            ]
         )
         hyper_parameters = {
             "logisticregression__multi_class": ["ovr"],
@@ -102,9 +105,9 @@ def hyperParamter_tuning(model, x, y):
         }
 
     elif model == "svm":
-        pipeline = Pipeline([("scaler", StandardScaler()), ("svc", SVC())])
+        pipeline = Pipeline([("scaler", StandardScaler()), ("svm", SVC())])
         hyper_parameters = {
-            "svc__kernel": [
+            "svm__kernel": [
                 "poly",
                 "rbf",
                 "sigmoid",
@@ -211,14 +214,15 @@ def cross_validation(final_model, x, y):
     )
     scores_k_folds = cross_val_score(final_model, x, y, cv=k_folds, scoring="accuracy")
     # scores = cross_val_score(pipeline, x, y, cv=10, scoring='accuracy')
-
+    score_cros_val = scores.mean()
     print("scores cv=10")
-    print(scores.mean())
+    print(score_cros_val)
 
     print("scores cv=shuffle_split")
     print(scores_shuffle_split.mean())
     print("scores cv=k_folds")
     print(scores_k_folds.mean())
+    return score_cros_val
 
 
 def fit_model(x, y, final_model):
@@ -234,8 +238,12 @@ def fit_model(x, y, final_model):
         "Classification Report:",
     )
     print(result1)
-    print("Accuracy :", accuracy_score(y_test, y_pred))
-    print("F1 : ", f1_score(y_test, y_pred, average="weighted"))
+    accuracy = accuracy_score(y_test, y_pred)
+    f1Score = f1_score(y_test, y_pred, average="weighted")
+    print("Accuracy :", accuracy)
+    print("F1 : ", f1Score)
+
+    return accuracy, f1Score
 
 
 @router.post("/train_model", response_model=None)
@@ -262,8 +270,8 @@ def train_model(
 
     final_model = hyperParamter_tuning(model=algorithm, x=x, y=y)
     print(final_model)
-    cross_validation(final_model, x, y)
-    fit_model(final_model=final_model, x=x, y=y)
+    score_cros_val = cross_validation(final_model, x, y)
+    accuracy, f1Score = fit_model(final_model=final_model, x=x, y=y)
 
     serialized_model = pickle.dumps(
         {
@@ -280,14 +288,24 @@ def train_model(
         dataset=dataset.filename,
         algorithm=algorithm,
         model=serialized_model,
+        accuracy=accuracy,
+        target=target,
     )
     print("DATASET , ", dataset)
 
     db.add(new_obj)
     db.commit()
     db.refresh(new_obj)
+    print("DATA FEATURES", data_features)
 
-    return {"The new model has been saved successfully"}
+    return {
+        "The new model has been saved successfully": [
+            accuracy,
+            f1Score,
+            score_cros_val,
+            data_features,
+        ]
+    }
 
 
 @router.post("/predict_using_trained_model")
@@ -321,9 +339,7 @@ def predict_model(
     new_x = new_x[0].split(",")
     for n in range(len(new_x)):
         feature = [
-            i
-            for i, val in enumerate(data_features)
-            if data_features[i] == " " + new_x[n]
+            i for i, val in enumerate(data_features) if data_features[i] == new_x[n]
         ]
         print(feature)
         if select == "second":
@@ -347,10 +363,46 @@ def user_model(
     db: Session = Depends(get_db),
 ):
 
+    result = []
     trained_model = (
         db.query(models.ML_user).filter(models.ML_user.user == user["id"]).all()
     )
-    trained_model_algorithm = [i.algorithm for i in trained_model]
-    trained_model_ID = [i.id for i in trained_model]
+    data_features = []
+    for i in trained_model:
+        model_data = pickle.loads(i.model)
+        data_features.append(model_data["data_features"])
 
-    return trained_model_ID
+    result = [
+        attr
+        for model, data in zip(trained_model, data_features)
+        for attr in (
+            model.id,
+            model.algorithm,
+            model.dataset,
+            model.target,
+            model.accuracy,
+            data,
+        )
+    ]
+
+    return result
+
+
+## delete modal by id
+@router.delete("/delete_model")
+def delete_model(
+    user: Annotated[dict, Depends(get_currnet_user)],
+    token: Annotated[str, Depends(oauth2_scheme)],
+    model_id: int,
+    db: Session = Depends(get_db),
+):
+    model = (
+        db.query(models.ML_user)
+        .filter(models.ML_user.id == model_id and models.User.id == user["id"])
+        .first()
+    )
+    if not model:
+        raise HTTPException(status_code=400, detail="model not found")
+    db.delete(model)
+    db.commit()
+    return {"model removed successfull "}

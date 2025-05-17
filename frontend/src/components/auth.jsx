@@ -8,7 +8,7 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import { data, useNavigate} from "react-router-dom";
 import { useState } from 'react';
 import api from '../api';
-
+import CustomizeInputGroup from '../custom_component/input';
 
 function Auth(){
 
@@ -105,7 +105,15 @@ const onChangeConfirmPassword=(event)=>{
             {
               account?   <>
 {/********* * Username, Password Inputs for Login  ************/}
-    <FloatingLabel
+<div style={{paddingLeft:"20px",paddingRight:"20px"
+
+}}
+  > <CustomizeInputGroup value={username}  onChange={onChangeUsername} type="text" text="username"  />
+   <CustomizeInputGroup value={password}  onChange={onChangePassword} text="password"
+ type='password'/>
+</div>
+  
+    {/* <FloatingLabel
     style={{margin:"0px 350px 20px 350px"}}
         controlId="floatingInput"
         label="Username"
@@ -129,11 +137,25 @@ const onChangeConfirmPassword=(event)=>{
         <Form.Control type="password" placeholder="Password" />
       
       </FloatingLabel>
-      </form>
+      </form> */}
       </>:
+
+
+
+   
       <>
+
+
+
+         <CustomizeInputGroup value={username}  onChange={onChangeUsername} type="text" text="username"  />
+   <CustomizeInputGroup  value={email} type="email"
+        onChange={onChangeEmail} text="email"/>
+   <CustomizeInputGroup value={password}  onChange={onChangePassword} text="password"/>
+   
+   <CustomizeInputGroup value={confirmPassword}  onChange={onChangeConfirmPassword} text="password"/>
+   
   
-      <FloatingLabel
+      {/* <FloatingLabel
     style={{margin:"0px 350px 10px 350px"}}
         controlId="floatingInput"
         label="username"
@@ -181,7 +203,7 @@ const onChangeConfirmPassword=(event)=>{
       
       </FloatingLabel>
       
-    
+     */}
 
       </>
             }

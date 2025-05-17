@@ -28,10 +28,11 @@ export const token=localStorage.getItem("token");
 function UserRole(){
 
 const [open,setOpen]=useState(true);
+const [disease,setDisease]=useState("");
+const [doctor,setDoctor]=useState("");
+const [error,setError]=useState(false);
 
 
-
-  // const token=localStorage.getItem("token");
 
 
 
@@ -219,40 +220,51 @@ const onClickPredict=()=>{
 const symptoms_array=value.split(", ");
 
 
-for( let i=0;i<symptoms_array.length;i++){
-  console.log(symptoms_array[i]);
-// let new_value=symptoms_array[i].split(" ") 
-// console.log("new_value", new_value);
-// if(new_value[0]==features[3].split("_")[0]){
-//   console.log(features[3].trim.split("_")[0])
-//   console.log(true);
-  
-// }
-// else{
-//   console.log(features[3].trim.split("_")[0]);
-  
-//   console.log(false );
-  
-// }
-// console.log(features[3].trim().split("_")[0])
+// for( let i=0;i<symptoms_array.length;i++){
+//   console.log(symptoms_array[i]);
 
-  // for( let j=0;j<symptoms_array[i].length;j++){
-  //   console.log(symptoms_array[i][j]);
-    
-  // }
+// }
 
-}
 
 
 let new_symptoms_array=[]
-symptoms_array.map((f)=>(
-  new_symptoms_array.push(f.replace(/ /g,"_"))
-));
+symptoms_array.map((f)=>{
+  console.log("THİS IS F : ",f);
+  // dataset exceptions
+if(f.trim()=='dischromic  patches'){
+ 
+ new_symptoms_array.push("dischromic _patches")
+  }
+  else if(f.trim()=='foul smell of urine'){
+   
+    
+    new_symptoms_array.push("foul_smell_of urine")
+  }
+  else if(f=="spotting  urination"){
+    new_symptoms_array.push("spotting_ urination")
+  }
+  else{
+      new_symptoms_array.push(f.replace(/ /g,"_"))
+
+
+  }
+  
+
+});
 console.log("symptoms array after", new_symptoms_array);
 // predict_doctor_sepeicality(new_symptoms_array)
+if(location.state.role =="patient"){
+predict_doctor_sepeicality(new_symptoms_array)
 
-predict_disease(new_symptoms_array)
 }
+else{
+  predict_disease(new_symptoms_array)
+}
+
+}
+
+
+
 
 const predict_disease=async(symptoms)=>{
 try{
@@ -260,10 +272,17 @@ const response=await api.post("/predict_disease",{
   "symptoms":symptoms},{
 headers: {"Authorization" : `Bearer ${token}`}});
 if(response.status==200){
+  setError(false)
   console.log("Predicted Disease ", response.data);
+  setDisease(response.data["Disease from main function "]);
+ 
+  
   
 }}
 catch(error){
+ 
+setError(true)
+  
   console.error(error)
 };
 
@@ -274,7 +293,8 @@ const predict_doctor_sepeicality=async(symptoms)=>{
     "symptoms":symptoms},{
   headers: {"Authorization" : `Bearer ${token}`}});
   if(response.status==200){
-    console.log("Predicted Disease ", response.data);
+    console.log("Predicted Doctor Specielatiy ", response.data);
+    setDoctor(response.data)
     
   }}
   catch(error){
@@ -301,7 +321,7 @@ return(
     
     <div >
     <div  style={{ position: "fixed", top: "100px", right: "20px", zIndex: 1000 }}>
-  <FontAwesomeIcon icon={faCircleInfo} size="2x" onClick={handleShow} />
+  <FontAwesomeIcon id='my_icon' icon={faCircleInfo} size="2x" onClick={handleShow} />
 </div>    {/* onMouseOver={onHover} onMouseLeave={onLeave} */}
 
 
@@ -309,7 +329,13 @@ return(
  
     <h1 style={{padding:"20px"}} > How Do you feel today?</h1>
 {/*****************************************  INPUT STYLE  *************************************/}
-    <p> please add a comma after each symptom</p>
+    
+    { error?
+    <h6 style={{color:"red"}}>The symptoms you've entered are not valid. Please select valid symptoms</h6>:
+  <h6 style={{color:"red"}}> please add a comma after each symptom</h6>
+    }
+    
+  
     {/* <InputGroup size="lg" className="mb-3" style={{padding:"10px 200px 10px 250px"}} 
      onChange={onChange} >
   <Form.Control
@@ -320,50 +346,20 @@ return(
 
 
 />
-<br/>
+
 </InputGroup> */}
-      
-<CustomizeInputGroup value={value}   onChange={onChange}  text="" />
+ <br/>
+<CustomizeInputGroup value={value}   onChange={onChange}  style={{height:"60px"}} />
 
-
+{/* <button onClick={()=>{console.log(value)}}> BUTTON </button> */}
 
 {open && value.split(",").pop().trim() !== "" &&( 
-
-  <Dropdown.Menu style={{ flexDirection: "column",
-   left:"7%",
- width: "90%",             // full width of parent
- maxWidth: "1000px",      // but not more than 1000px
-    position: "absolute",      // ensure proper positioning
-    zIndex: 1000 ,
-    // transform: "translateX(-50%)",
-   
-    // marginLeft:"100px",marginRight:"100px"
-   }}
- show >
-
-{ 
-  new_f.filter(item => {
-    
-const terms = value.split(","); 
-const lastTerm = terms[terms.length - 1].trim().toLowerCase(); 
-const symptom = item.toLowerCase();
-
-return lastTerm && (symptom.startsWith(lastTerm) || symptom.startsWith(lastTerm));
-})
-.map((f)=>(
-<div>
-<Dropdown.Item  style={{cursor:"pointer",textAlign:"start",margin:"2px 0"}} 
-onClick={()=>{
-  onSearch(f);
-   setOpen(!open)}}  ><h6>{f}</h6></Dropdown.Item>
-
-</div>
-))
-
-
-}
-
-</Dropdown.Menu>) 
+<CustomizeDropMenu new_f={new_f}
+  value={value}
+  onSearch={onSearch}
+  setOpen={setOpen}
+/>
+) 
 
 
 
@@ -372,17 +368,62 @@ onClick={()=>{
 
 
 
-<div className='dropdown'> 
 
-</div>
 
 
 <CustomizeButton id="button3" onClick={onClickPredict} name= {location.state.role =="patient"? <h5 > predict Docotor specialist</h5>: <h5 > predict  Disease</h5> } />
+<br/>
+<br/>
+<br/>
+
+
+{
+  location.state.role =="patient"? <>
+  {doctor && (
+ <>
+
+    <h4>You may need  <strong style={{ color:"red"}}>{doctor}</strong></h4>
+  
+<br/>
+<br/>
+<br/>
+
+<h4 onClick={()=>{navigator}}> Would you like to check what Disease you have?</h4>
+ </>
+  
+  
+  
+)}</>:
+<>
+
+{disease && (
+ <>
+
+    <h4>You may have<strong style={{ color:"red"}}>{disease}</strong></h4>
+  
+<br/>
+<br/>
+<br/>
+
+<h4 onClick={()=>{navigator}}> Would you like to check which doctor_speciality you need to see?</h4>
+ </>
+  
+  
+  
+)}
+
+
+
+  </>
+}
+
+
+
+
+
 
 <br/>
-<br/>
-<br/>
-<br/>
+
 
 
  <Modal show={show} onHide={handleClose}>

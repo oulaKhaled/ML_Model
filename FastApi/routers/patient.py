@@ -39,7 +39,7 @@ async def predict_doctor_specality(
     db.add(new_obj)
     db.commit()
     db.refresh(new_obj)
-    return {"Doctor specality from LLM: ", response.response}
+    return response.response
 
 
 # @router.post("/doctor_speciality2")
