@@ -18,12 +18,28 @@ import { token } from './user_role';
 import CustomizeButton from '../custom_component/button';
 import CustomizeSelectOption from '../custom_component/option';
 import CustomizedModel from '../custom_component/modal';
+import { faCircleDot } from '@fortawesome/free-solid-svg-icons';
 
+
+const options1=[
+   { value: "decisiontree", label: "Decision Tree" },
+    { value: "randomforest", label: "Random forest" },
+    { value: "logisticregression", label: "Logistic Regression" },
+    { value: "svm", label: "SVM" },
+    { value: "knn", label: "KNN" },
+    ]
+const options2=[
+   { value: "first", label: "One Hot Encoding" },
+    { value: "second", label: "Label Encoding" },
+    ]
 function Ml_user() {
   const [show, setShow] = useState(false);
   const [show2, setShow2] = useState(false);
 
   const [show3, setShow3] = useState(false);
+  const [show4, setShow4] = useState(false);
+
+
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -31,12 +47,13 @@ function Ml_user() {
   const handleShow2 = () => setShow2(true);
    const handleClose3 = () => setShow3(false);
   const handleShow3 = () => setShow3(true);
-  
+     const handleClose4 = () => setShow4(false);
+  const handleShow4 = () => setShow4(true);
 
   const [dataset,setDataset]=useState([]);
-  const[algorithm,setAlogorithm]=useState("");
+  const[algorithm,setAlogorithm]=useState(options1[0].value);
   const[target,setTarget]=useState("");
-  const [select,setSelect]=useState("");
+  const [select,setSelect]=useState(options2[0]);
   const [showResult,SetshowResult]=useState(false);
   const [result,setResult]=useState([])
   const [trainedModels,getTrainedModels]=useState([])
@@ -53,8 +70,6 @@ function Ml_user() {
     formData.append("target",target)
     try{
       const response=await api.post("/train_model",formData,
-      {  headers:{"Authorization":`Bearer ${token}`}
-    }
     
   );
   if(response.status==200){
@@ -66,6 +81,12 @@ function Ml_user() {
     
   
   
+  }
+  else if(response.status==403){
+    console.log("Token in epired please Login again",);
+    localStorage.removeItem("token");
+    
+
   }
     else{
       console.log("something went wrong ,",response.status);
@@ -85,8 +106,7 @@ function Ml_user() {
 
   const getUserModels=async()=>{
     try{
-      const response=await api.get("/user_model",{  
-headers: {"Authorization" : `Bearer ${token}`}});
+      const response=await api.get("/user_model",);
 if(response.status==200){
   console.log("Here is models that you trained before",response.data);
   getTrainedModels(response.data)
@@ -143,16 +163,21 @@ else{
         <Modal.Header closeButton>
         </Modal.Header>
         <Modal.Body  >
-        <div style={{ padding:40,display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
+        <div style={{ padding:10,display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
 
 <br/>
 {
    showResult ?
    <div>
-   <h5> you model is trained Successfully </h5>
-    <p>accuracy : {result[0]}</p>
-    <p>F1 Score : {result[1]}</p>
-    <p> Cross validation Score : {result[2]}</p>
+   <h4 style={{color: "#1F7D53"}}> Model training completed successfully! </h4>
+   <br/>
+    <h5 style={{color: "#7D0A0A"}}>Accuracy</h5><h6>{result[0]}</h6>
+    <br/>
+
+    <h6 ><h5 style={{color: "#7D0A0A"}}>F1 Score</h5>  {result[1]}</h6>
+    <br/>
+    
+    <h6 ><h5 style={{color: "#7D0A0A"}}> Cross validation Score</h5>  {result[2]}</h6>
     
     
     </div>
@@ -183,11 +208,39 @@ handleClose3={handleClose3}
 trainedModels={trainedModels}
 handleShow3={handleShow3}
 getuserModel={getUserModels}
-
-
-
-
 />
+{/******************* * FOURTH MODAL ( Dataset info) ************************/}
+
+      <Modal show={show4} onHide={handleClose4}>
+        <Modal.Header closeButton>
+          <Modal.Title   >  ⚠️ Important Note</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+<h4>Required Format</h4>
+<h6 style={{color:"green"}}><strong>Your dataset should be a CSV file.</strong></h6>
+<h6>It must include:</h6>
+
+<h5> <FontAwesomeIcon size='xs' icon={faCircleDot} style={{color:"red"}}/> One column named (or acting as) Disease – the target variable.</h5>
+<h5> <FontAwesomeIcon  size='xs' icon={faCircleDot} style={{color:"red"}}/> Several columns named like Symptom_1, Symptom_2, ..., Symptom_17, each representing a symptom.</h5>
+<h5> <FontAwesomeIcon size='xs' icon={faCircleDot} style={{color:"red"}} /> All values must be in text format (categorical), even if they are null/missing in some rows.</h5>
+<h5> <FontAwesomeIcon  size='xs' icon={faCircleDot} style={{color:"red"}} /> A maximum of 17 symptom columns is expected. Missing symptom columns should be filled with empty values (NaN).</h5>
+<br/>        
+{/* <h5  style={{color:"red"}}>Important </h5> */}
+
+<h6 style={{color:"#A31D1D"}}>This tool is designed for experimentation with clean, symptom-based datasets like the one provided.</h6>
+
+<h6 style={{color:"#A31D1D"}}>While you can upload any dataset, using random, noisy, or unstructured data may lead to unreliable results.
+</h6>
+<h6 style={{color:"#A31D1D"}}><strong >This tool is not intended for real-world deployment or critical decisions</strong> 
+— it's meant for experimentation with well-prepared datasets that follow standard ML practices. </h6>     
+        
+        </Modal.Body>
+        <Modal.Footer>
+
+
+        </Modal.Footer>
+      </Modal>
+
 
 
 
@@ -207,12 +260,39 @@ getuserModel={getUserModels}
 
 
 </div>   */}
-<CustomizeInputGroup text="Dataset" type="file"  onChange= {(event)=>setDataset(event.target.files[0])}   style={{ borderColor: "red", borderWidth: "2px"}} />
-<CustomizeSelectOption onChange={(event)=>
+
+   
+<CustomizeInputGroup  text=<h5>Dataset <FontAwesomeIcon  icon={faCircleInfo} onClick={handleShow4} style={{color:"#A31D1D"}} />  </h5>  className="col" type="file"  onChange= {(event)=>setDataset(event.target.files[0])}   style={{ borderColor: "red", borderWidth: "2px"}} />
+
+
+
+<CustomizeSelectOption 
+text=<h5>Algorithm</h5>
+inputTextStyle={{ width: "120px",height:"50px" }}
+
+
+onChange={(event)=>
               setAlogorithm(event.target.value)
-            } value={algorithm}/>
-<CustomizeInputGroup text="Target"  type="text" onChange={(event)=>setTarget(event.target.value)} value={target}  style={{ borderColor: "red", borderWidth: "2px"}} />
-<CustomizeInputGroup text="Select"  type="text" onChange={(event)=>setSelect(event.target.value)} value={select}  style={{ borderColor: "red", borderWidth: "2px"}} />
+            } value={algorithm}
+options={options1} />
+<CustomizeInputGroup text=<h5>Target</h5>  type="text" onChange={(event)=>setTarget(event.target.value)} value={target}  style={{ borderColor: "red", borderWidth: "2px"}} />
+
+
+<CustomizeSelectOption 
+text=<h5>Encoding Method</h5>
+onChange={(event)=>
+              setSelect(event.target.value)
+            } value={select}
+
+options={options2}
+inputTextStyle={{ width: "190px",height:"50px" }}
+
+/>
+
+
+
+
+
 <CustomizeButton onClick={()=>{
         console.log(dataset,algorithm,select,target); 
         handleShow2()

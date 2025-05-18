@@ -198,8 +198,8 @@ style={{ "display": 'grid', "gridTemplateColumns": '1fr 1fr 1fr 1fr 1fr 1fr 1fr 
       </Modal>
       //////////////////////////////////////////
       auth
-      1- Token expired time
       10- what if user used email twice
       11- what if user didnt write password and confirm password
-      
 
+      user_role:
+      14- edit drpo down input bar

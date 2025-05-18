@@ -108,36 +108,12 @@ const onChangeConfirmPassword=(event)=>{
 <div style={{paddingLeft:"20px",paddingRight:"20px"
 
 }}
-  > <CustomizeInputGroup value={username}  onChange={onChangeUsername} type="text" text="username"  />
-   <CustomizeInputGroup value={password}  onChange={onChangePassword} text="password"
+  > <CustomizeInputGroup value={username}  onChange={onChangeUsername} type="text" text=<h5>Username</h5>  />
+   <CustomizeInputGroup value={password}  onChange={onChangePassword} text=<h5>Password</h5>
  type='password'/>
 </div>
   
-    {/* <FloatingLabel
-    style={{margin:"0px 350px 20px 350px"}}
-        controlId="floatingInput"
-        label="Username"
-        className="mb-3"
-        value={username}
-        onChange={onChangeUsername}
-      
-      >
-        <Form.Control type="text"  />
-      </FloatingLabel>
-
-
-      <form >
-      <FloatingLabel controlId="floatingPassword" label="Password" style={{margin:"0px 350px 20px 350px"}}
-      value={password}
-      onChange={onChangePassword}
- autoComplete='password'
-
-  
-      >
-        <Form.Control type="password" placeholder="Password" />
-      
-      </FloatingLabel>
-      </form> */}
+ 
       </>:
 
 
@@ -147,63 +123,15 @@ const onChangeConfirmPassword=(event)=>{
 
 
 
-         <CustomizeInputGroup value={username}  onChange={onChangeUsername} type="text" text="username"  />
+         <CustomizeInputGroup value={username}  onChange={onChangeUsername} type="text" text=<h5>Username</h5>  />
    <CustomizeInputGroup  value={email} type="email"
-        onChange={onChangeEmail} text="email"/>
-   <CustomizeInputGroup value={password}  onChange={onChangePassword} text="password"/>
+        onChange={onChangeEmail} text=<h5>Email</h5>/>
+   <CustomizeInputGroup value={password}  onChange={onChangePassword} text=<h5>Password</h5>/>
    
-   <CustomizeInputGroup value={confirmPassword}  onChange={onChangeConfirmPassword} text="password"/>
+   <CustomizeInputGroup value={confirmPassword}  onChange={onChangeConfirmPassword} text=<h5> Confirm password</h5>/>
    
   
-      {/* <FloatingLabel
-    style={{margin:"0px 350px 10px 350px"}}
-        controlId="floatingInput"
-        label="username"
-        className="mb-3"
-        value={username}
-        onChange={onChangeUsername}
-      >
-        <Form.Control type="text" placeholder="username" />
-      </FloatingLabel>
-
-
-      <FloatingLabel
-    style={{margin:"0px 350px 10px 350px"}}
-        controlId="floatingInput"
-        label="Email address"
-        className="mb-3"
-        value={email}
-        onChange={onChangeEmail}
-      
-      >
-        <Form.Control type="email" placeholder="name@example.com" />
-      </FloatingLabel>
-
-
-      
-
-      <FloatingLabel controlId="floatingPassword" label="Password" style={{margin:"0px 350px 10px 350px"}}
-      
-      value={password}
-        onChange={onChangePassword}
-      autoComplete='password'
-      
-      
-      >
-        <Form.Control type="password" placeholder="Password" />
-      
-      </FloatingLabel>
-      <FloatingLabel controlId="floatingPassword" label=" confirm Password" style={{margin:"0px 350px 10px 350px"}}
-        value={confirmPassword}
-        onChange={onChangeConfirmPassword}
-        autoComplete='password'
-      
-      >
-        <Form.Control type="password" placeholder="confirm passwprd" />
-      
-      </FloatingLabel>
-      
-     */}
+  
 
       </>
             }

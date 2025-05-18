@@ -269,8 +269,7 @@ else{
 const predict_disease=async(symptoms)=>{
 try{
 const response=await api.post("/predict_disease",{
-  "symptoms":symptoms},{
-headers: {"Authorization" : `Bearer ${token}`}});
+  "symptoms":symptoms},);
 if(response.status==200){
   setError(false)
   console.log("Predicted Disease ", response.data);
@@ -278,7 +277,9 @@ if(response.status==200){
  
   
   
-}}
+}
+
+}
 catch(error){
  
 setError(true)
@@ -290,14 +291,14 @@ setError(true)
 const predict_doctor_sepeicality=async(symptoms)=>{
   try{
   const response=await api.post("/doctor_speciality",{
-    "symptoms":symptoms},{
-  headers: {"Authorization" : `Bearer ${token}`}});
+    "symptoms":symptoms});
   if(response.status==200){
     console.log("Predicted Doctor Specielatiy ", response.data);
     setDoctor(response.data)
     
   }}
   catch(error){
+    setError(true)
     console.error(error)
   };
   
@@ -382,7 +383,7 @@ return(
   {doctor && (
  <>
 
-    <h4>You may need  <strong style={{ color:"red"}}>{doctor}</strong></h4>
+    <h4>You may need to see <strong style={{ color:"red"}}>{doctor}</strong></h4>
   
 <br/>
 <br/>
@@ -399,7 +400,7 @@ return(
 {disease && (
  <>
 
-    <h4>You may have<strong style={{ color:"red"}}>{disease}</strong></h4>
+    <h4>You may have <strong style={{ color:"red"}}>{disease}</strong></h4>
   
 <br/>
 <br/>

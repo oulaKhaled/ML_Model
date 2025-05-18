@@ -50,6 +50,9 @@ router = APIRouter()
 def data_preprocessing(dataset, target, select):
     dataset = pd.read_csv(dataset)
     unique_values = []
+    print("This is Select Method : ", select)
+    if select == "":
+        raise HTTPException(status_code=400, detail="Please Select Encoding Mothod")
     ## this loop is for creating new column called unique_values that contain each row's values
     for i in range(len(dataset)):
         value = dataset.iloc[i].values.tolist()  ## values of each row
@@ -282,6 +285,7 @@ def train_model(
             "select": select,
         },
     )
+    print("THis is select method : ", select)
 
     new_obj = models.ML_user(
         user=user["id"],

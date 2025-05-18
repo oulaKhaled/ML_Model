@@ -15,27 +15,12 @@ const [features,setFeatures]=useState([]);
 const [data,getData]=useState([]);
  const[Id,getId]=useState("");  
 
-// const get_data_features=async()=>{
-//     try{
-//         const response=await api.get("/data_features"
-//             {}
-//         )
-//     }
-// }
-
-// const HandelClick=()=>{
-// prop.handleClose3()
-// handleShow4()
-
-
-
-// }
 
 const handleCheckboxChange = (e, value) => {
   if (e.target.checked) {
-    getData(prev => [...prev, value]); // ✅ Add if checked
+    getData(prev => [...prev, value]); 
   } else {
-    getData(prev => prev.filter(item => item !== value)); // ❌ Remove if unchecked
+    getData(prev => prev.filter(item => item !== value)); 
   }
 };
 
@@ -46,7 +31,6 @@ console.log("id : ",id);
 
   try{
     const response= await api.delete("/delete_model",{
-      headers:{"Authorization":`Bearer ${token}`},
       params: {
         model_id: id, // ✅ as query parameter
       }});
@@ -68,7 +52,6 @@ console.log("id : ",id);
 const predict_model=async(id)=>{
   try{
     const response=await api.post("/predict_using_trained_model",data,{
-      headers:{"Authorization":`Bearer ${token}`},
       params: {
         trained_model_id: id, // ✅ as query parameter
       }});

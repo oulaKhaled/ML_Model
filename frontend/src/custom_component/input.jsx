@@ -12,7 +12,7 @@ function CustomizeInputGroup(props){
 <div style={{marginLeft:"70px",marginRight:"70px",marginTop:"10px"}}>
         <InputGroup size="lg" className="mb-3" >
         
-                  <InputGroup.Text id="inputGroup-sizing-sm" ><h5>{props.text}</h5> </InputGroup.Text>
+                  <InputGroup.Text id="inputGroup-sizing-sm" >{props.text}</InputGroup.Text>
                   <Form.Control
                     type={props.type}
                     style={props.style}
