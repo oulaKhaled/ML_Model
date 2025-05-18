@@ -4,9 +4,9 @@ import Dropdown from 'react-bootstrap/Dropdown';
 function CustomizeDropMenu(props){
 
    return(
-<div style={{marginLeft:"70px",marginRight:"70px"}}>
+<div style={{marginLeft:"70px",marginRight:"70px",}}>
 
-<Dropdown.Menu show style={{width:"100%",position:"relative",bottom:"0px"}} >
+<Dropdown.Menu show style={{width:"100%",position:"relative",top:-17}} >
 
 { 
   props.new_f.filter(item => {

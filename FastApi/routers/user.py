@@ -21,7 +21,7 @@ class UserResponse(BaseModel):
 
 
 @router.post("/register", status_code=status.HTTP_200_OK, response_model=UserResponse)
-def create_user(user: UserCreate, db: Session = Depends(get_db)):
+async def create_user(user: UserCreate, db: Session = Depends(get_db)):
     ## converts the UserCreate Pydantic model into a dictionary.
     ## creates a new SQLAlchemy model instance using this dictionary.
     hashed_password = hash_password(user.password, user.confirm_password)
@@ -38,6 +38,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
         username=user.username,
     )
     db.add(new_user)
+    db.commit()
     # Commits the transaction to save the new user in the database.
     db.refresh(new_user)
     return new_user

@@ -31,7 +31,7 @@ const [open,setOpen]=useState(true);
 const [disease,setDisease]=useState("");
 const [doctor,setDoctor]=useState("");
 const [error,setError]=useState(false);
-
+const [sendrequest,getSendRequest]=useState(false);
 
 
 
@@ -267,7 +267,10 @@ else{
 
 
 const predict_disease=async(symptoms)=>{
+    
+getSendRequest(true);
 try{
+  
 const response=await api.post("/predict_disease",{
   "symptoms":symptoms},);
 if(response.status==200){
@@ -281,7 +284,7 @@ if(response.status==200){
 
 }
 catch(error){
- 
+getSendRequest(false);
 setError(true)
   
   console.error(error)
@@ -289,15 +292,20 @@ setError(true)
 
 }
 const predict_doctor_sepeicality=async(symptoms)=>{
+    getSendRequest(true);
   try{
+  
   const response=await api.post("/doctor_speciality",{
     "symptoms":symptoms});
+  
   if(response.status==200){
+    
     console.log("Predicted Doctor Specielatiy ", response.data);
     setDoctor(response.data)
     
   }}
   catch(error){
+    getSendRequest(false);
     setError(true)
     console.error(error)
   };
@@ -322,7 +330,7 @@ return(
     
     <div >
     <div  style={{ position: "fixed", top: "100px", right: "20px", zIndex: 1000 }}>
-  <FontAwesomeIcon id='my_icon' icon={faCircleInfo} size="2x" onClick={handleShow} />
+ <h6><strong>info</strong></h6> <FontAwesomeIcon id='my_icon' icon={faCircleInfo} size="2x" onClick={handleShow} />
 </div>    {/* onMouseOver={onHover} onMouseLeave={onLeave} */}
 
 
@@ -337,18 +345,7 @@ return(
     }
     
   
-    {/* <InputGroup size="lg" className="mb-3" style={{padding:"10px 200px 10px 250px"}} 
-     onChange={onChange} >
-  <Form.Control
-  aria-label="Small"
-  aria-describedby="inputGroup-sizing-sm"
-  style={{borderColor:"red", borderWidth:"2px",borderRadius:"10px"}}
-  value={value}
-
-
-/>
-
-</InputGroup> */}
+  
  <br/>
 <CustomizeInputGroup value={value}   onChange={onChange}  style={{height:"60px"}} />
 
@@ -372,7 +369,9 @@ return(
 
 
 
-<CustomizeButton id="button3" onClick={onClickPredict} name= {location.state.role =="patient"? <h5 > predict Docotor specialist</h5>: <h5 > predict  Disease</h5> } />
+<CustomizeButton id="button3"
+
+ onClick={onClickPredict} name= {location.state.role =="patient"? <h5 > predict Docotor specialist</h5>: <h5 > predict  Disease</h5> } />
 <br/>
 <br/>
 <br/>
@@ -380,7 +379,7 @@ return(
 
 {
   location.state.role =="patient"? <>
-  {doctor && (
+  { doctor!=""?  
  <>
 
     <h4>You may need to see <strong style={{ color:"red"}}>{doctor}</strong></h4>
@@ -390,11 +389,19 @@ return(
 <br/>
 
 <h4 onClick={()=>{navigator}}> Would you like to check what Disease you have?</h4>
- </>
-  
-  
-  
-)}</>:
+ </>:
+ <>
+{sendrequest?
+
+  <svg  viewBox="25 25 50 50" className="rotating-circle">
+  <circle  id="my_circle"  r="20" cy="50" cx="50"></circle>
+</svg>
+
+:null}
+
+</>
+
+}</>:
 <>
 
 {disease && (
@@ -406,7 +413,7 @@ return(
 <br/>
 <br/>
 
-<h4 onClick={()=>{navigator}}> Would you like to check which doctor_speciality you need to see?</h4>
+<h4 onClick={()=>{navigator}}>if you would like to check which doctor to see click here</h4>
  </>
   
   

@@ -17,7 +17,7 @@ const[username,setUsername]=useState("");
 const [password,setPassword]=useState("");
 const [email,setEmail]=useState("");
 const [confirmPassword,setConfirmPassword]=useState("")
-
+const [error,setError]=useState("");
 const navigate=useNavigate()
 const Login=async ()=>{
 
@@ -37,14 +37,14 @@ const Login=async ()=>{
     
   }
   catch(error){
-    
+        setError(error["response"]["data"]["detail"])
+
     console.error("error while login ", error)
 
   }
 }
 const Register=async ()=>{
-  
-  
+ 
   try{
     const response = await api.post("/register",{
       "username":username,
@@ -53,18 +53,24 @@ const Register=async ()=>{
       "confirm_password":confirmPassword
 
     });
+    console.log("This is response from register function : ",response);
+    
     if(response.status==200){
       
     console.log(" Response from Register method ",response.data);
-    Login()
+     setAccount(false);
+     console.log("Account : ",account);
+       
+    await Login()
     navigate("/")
     
     }
+  
   }
   catch(error){
    
-    
-    console.error("error while Register", error)
+    setError(error["response"]["data"]["detail"])
+    console.error("error while Register", error["response"]["data"]["detail"])
 
   }
 }
@@ -101,6 +107,17 @@ const onChangeConfirmPassword=(event)=>{
  
             <br/>
             <br/>
+
+{
+  error!="" &&(
+    <h4  style={{color:"red"}}>{error}</h4>
+  )
+}
+<br/>
+
+
+
+
           
             {
               account?   <>
@@ -126,9 +143,9 @@ const onChangeConfirmPassword=(event)=>{
          <CustomizeInputGroup value={username}  onChange={onChangeUsername} type="text" text=<h5>Username</h5>  />
    <CustomizeInputGroup  value={email} type="email"
         onChange={onChangeEmail} text=<h5>Email</h5>/>
-   <CustomizeInputGroup value={password}  onChange={onChangePassword} text=<h5>Password</h5>/>
+   <CustomizeInputGroup value={password}  onChange={onChangePassword} type="password" text=<h5>Password</h5>/>
    
-   <CustomizeInputGroup value={confirmPassword}  onChange={onChangeConfirmPassword} text=<h5> Confirm password</h5>/>
+   <CustomizeInputGroup value={confirmPassword}  onChange={onChangeConfirmPassword} type="password" text=<h5> Confirm password</h5>/>
    
   
   

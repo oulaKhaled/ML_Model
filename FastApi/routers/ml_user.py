@@ -51,7 +51,7 @@ def data_preprocessing(dataset, target, select):
     dataset = pd.read_csv(dataset)
     unique_values = []
     print("This is Select Method : ", select)
-    if select == "":
+    if select != "first" or select != "second":
         raise HTTPException(status_code=400, detail="Please Select Encoding Mothod")
     ## this loop is for creating new column called unique_values that contain each row's values
     for i in range(len(dataset)):

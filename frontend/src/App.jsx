@@ -8,7 +8,6 @@ import HomePage from './components/HomePage'
 import Auth from './components/auth.jsx';
 import Ml_user from './components/ml_user.jsx';
 import UserRole from './components/user_role.jsx';
-import Test from './components/test.jsx';
 function App() {
 
   return(
@@ -20,7 +19,6 @@ function App() {
 <Route path="/auth" element={<Auth/>}/> 
 <Route path="/ml_user" element={<Ml_user/>}/> 
 <Route path="/user_role" element={<UserRole/>}/> 
-<Route path="/test" element={<Test/>}/> 
 
 
 

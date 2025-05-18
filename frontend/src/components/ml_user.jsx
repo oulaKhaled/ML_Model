@@ -53,7 +53,7 @@ function Ml_user() {
   const [dataset,setDataset]=useState([]);
   const[algorithm,setAlogorithm]=useState(options1[0].value);
   const[target,setTarget]=useState("");
-  const [select,setSelect]=useState(options2[0]);
+  const [select,setSelect]=useState(options2[0].value);
   const [showResult,SetshowResult]=useState(false);
   const [result,setResult]=useState([])
   const [trainedModels,getTrainedModels]=useState([])
@@ -82,15 +82,10 @@ function Ml_user() {
   
   
   }
-  else if(response.status==403){
-    console.log("Token in epired please Login again",);
-    localStorage.removeItem("token");
-    
 
-  }
     else{
       console.log("something went wrong ,",response.status);
-      
+      SetshowResult(false);
     }
     }
    
@@ -171,18 +166,18 @@ else{
    <div>
    <h4 style={{color: "#1F7D53"}}> Model training completed successfully! </h4>
    <br/>
-    <h5 style={{color: "#7D0A0A"}}>Accuracy</h5><h6>{result[0]}</h6>
+    <strong style={{color: "#7D0A0A"}}>Accuracy</strong><h6>{result[0]}</h6>
     <br/>
 
-    <h6 ><h5 style={{color: "#7D0A0A"}}>F1 Score</h5>  {result[1]}</h6>
+    <h6 ><strong style={{color: "#7D0A0A"}}>F1 Score</strong>  {result[1]}</h6>
     <br/>
     
-    <h6 ><h5 style={{color: "#7D0A0A"}}> Cross validation Score</h5>  {result[2]}</h6>
+    <h6 ><strong style={{color: "#7D0A0A"}}> Cross validation Score</strong>  {result[2]}</h6>
     
     
     </div>
   
-  : dataset.length!==0 && algorithm!== "" && target!=="" && select!=="" ?
+  : dataset.length!==0 && algorithm!== "" && target!=="" && select!==""?
   <div>
 <h5> Please Wait , Your model is training now </h5>
 
@@ -216,23 +211,31 @@ getuserModel={getUserModels}
           <Modal.Title   >  ⚠️ Important Note</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+
+
+        <h6 style={{color:"#A31D1D"}}>This tool is designed for 
+        experimentation using clean, symptom-based datasets that follow a specific structure 
+        (like the one provided). While you are allowed to upload any dataset, </h6>
+
+
+<h6><strong style={{color:"#A31D1D"}}>Please note:</strong></h6>
+<h6  style={{color:"#003092"}}><strong >If your dataset does not meet the required format and structure, the results may be inaccurate, misleading, or entirely invalid.</strong> </h6>
+<h6 style={{color:"#003092"}}>This tool is not intended for real-world use or critical decision-making. Any predictions made using datasets that do not follow the recommended format should not be taken seriously, and this project holds no responsibility for such results.. </h6>   
+<br/>
 <h4>Required Format</h4>
 <h6 style={{color:"green"}}><strong>Your dataset should be a CSV file.</strong></h6>
 <h6>It must include:</h6>
 
-<h5> <FontAwesomeIcon size='xs' icon={faCircleDot} style={{color:"red"}}/> One column named (or acting as) Disease – the target variable.</h5>
-<h5> <FontAwesomeIcon  size='xs' icon={faCircleDot} style={{color:"red"}}/> Several columns named like Symptom_1, Symptom_2, ..., Symptom_17, each representing a symptom.</h5>
-<h5> <FontAwesomeIcon size='xs' icon={faCircleDot} style={{color:"red"}} /> All values must be in text format (categorical), even if they are null/missing in some rows.</h5>
-<h5> <FontAwesomeIcon  size='xs' icon={faCircleDot} style={{color:"red"}} /> A maximum of 17 symptom columns is expected. Missing symptom columns should be filled with empty values (NaN).</h5>
-<br/>        
+<h6> <FontAwesomeIcon size='xs' icon={faCircleDot} style={{color:"red"}}/> One column named (or acting as) Disease – the target variable.</h6>
+<h6> <FontAwesomeIcon  size='xs' icon={faCircleDot} style={{color:"red"}}/> Several columns named like Symptom_1, Symptom_2, ..., Symptom_17, each representing a symptom.</h6>
+<h6> <FontAwesomeIcon size='xs' icon={faCircleDot} style={{color:"red"}} /> All values must be in text format (categorical), even if they are null/missing in some rows.</h6>
+<h6> <FontAwesomeIcon  size='xs' icon={faCircleDot} style={{color:"red"}} /> A maximum of 17 symptom columns is expected. Missing symptom columns should be filled with empty values (NaN).</h6>
+<br/>  
+{/* <h6   style={{color:"#A31D1D"}}>To ensure meaningful outcomes, please use properly structured, labeled, and preprocessed data as outlined in the dataset guidelines.
+</h6>       */}
 {/* <h5  style={{color:"red"}}>Important </h5> */}
 
-<h6 style={{color:"#A31D1D"}}>This tool is designed for experimentation with clean, symptom-based datasets like the one provided.</h6>
-
-<h6 style={{color:"#A31D1D"}}>While you can upload any dataset, using random, noisy, or unstructured data may lead to unreliable results.
-</h6>
-<h6 style={{color:"#A31D1D"}}><strong >This tool is not intended for real-world deployment or critical decisions</strong> 
-— it's meant for experimentation with well-prepared datasets that follow standard ML practices. </h6>     
+  
         
         </Modal.Body>
         <Modal.Footer>
@@ -246,8 +249,8 @@ getuserModel={getUserModels}
 
 {/* <button onClick={handleShow2}>Show  SECONED Modal</button> */}
 
-      <div style={{ position: "fixed", top: "100px", right: "20px", zIndex: 1000 }}>
-  <FontAwesomeIcon icon={faCircleInfo} size="2x" onClick={handleShow} />
+      <div style={{ position: "fixed", top: "90px", right: "20px", zIndex: 1000 }}>
+ <h6><strong>info</strong> </h6><FontAwesomeIcon icon={faCircleInfo} size="2x" onClick={handleShow} />
 </div>
 <h1  > ML user </h1>
 
@@ -260,12 +263,10 @@ getuserModel={getUserModels}
 
 
 </div>   */}
+{/* A31D1D */}
 
-   
-<CustomizeInputGroup  text=<h5>Dataset <FontAwesomeIcon  icon={faCircleInfo} onClick={handleShow4} style={{color:"#A31D1D"}} />  </h5>  className="col" type="file"  onChange= {(event)=>setDataset(event.target.files[0])}   style={{ borderColor: "red", borderWidth: "2px"}} />
-
-
-
+ <p style={{color:"red",fontWeight:"bolder"}} onClick={handleShow4}><FontAwesomeIcon  icon={faCircleInfo}  style={{color:"red"}} />  Before uploading, click here to check dataset requirements    </p>  
+<CustomizeInputGroup  text=<h5>Dataset</h5>  className="col" type="file"  onChange= {(event)=>setDataset(event.target.files[0])}   style={{ borderColor: "red", borderWidth: "2px"}} />
 <CustomizeSelectOption 
 text=<h5>Algorithm</h5>
 inputTextStyle={{ width: "120px",height:"50px" }}
