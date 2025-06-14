@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
+import { faCircleInfo, faHouse } from '@fortawesome/free-solid-svg-icons';
 import { useLocation } from 'react-router-dom';
 import CustomNavbar from '../custom_component/navbar';
 import { faBrain  } from '@fortawesome/free-solid-svg-icons';
@@ -16,7 +16,7 @@ import CustomizeButton from '../custom_component/button';
 import CustomizeInputGroup from '../custom_component/input';
 import CustomizeDropMenu from '../custom_component/dropMenu';
 import '../App.css'
-
+import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
 
@@ -26,7 +26,7 @@ export const token=localStorage.getItem("token");
 
 
 function UserRole(){
-
+const navigate=useNavigate();
 const [open,setOpen]=useState(true);
 const [disease,setDisease]=useState("");
 const [doctor,setDoctor]=useState("");
@@ -335,6 +335,13 @@ return(
 
 
     </div>
+
+    <div style={{ position: "fixed", top: "120px",left:"30px", zIndex: 1000 }}>
+<FontAwesomeIcon onClick={()=>{
+  navigate("/")
+  
+}} icon={faHouse} size="2x" />
+</div>
  
     <h1 style={{padding:"20px"}} > How Do you feel today?</h1>
 {/*****************************************  INPUT STYLE  *************************************/}

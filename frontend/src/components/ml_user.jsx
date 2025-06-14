@@ -19,8 +19,8 @@ import CustomizeButton from '../custom_component/button';
 import CustomizeSelectOption from '../custom_component/option';
 import CustomizedModel from '../custom_component/modal';
 import { faCircleDot } from '@fortawesome/free-solid-svg-icons';
-
-
+import { faHouse } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router-dom';
 const options1=[
    { value: "decisiontree", label: "Decision Tree" },
     { value: "randomforest", label: "Random forest" },
@@ -39,8 +39,7 @@ function Ml_user() {
   const [show3, setShow3] = useState(false);
   const [show4, setShow4] = useState(false);
 
-
-
+const navigate=useNavigate();
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const handleClose2 = () => setShow2(false);
@@ -131,6 +130,13 @@ else{
     <div id="div_1">
       <CustomNavbar />
       <br />
+      <div style={{ position: "fixed", top: "120px",left:"30px", zIndex: 1000 }}>
+      <FontAwesomeIcon onClick={()=>{
+        navigate("/")
+        
+      }} icon={faHouse} size="2x" />
+      </div>
+      
 {/******************* * FIRST MODAL (info) ************************/}
 
       <Modal show={show} onHide={handleClose}>
@@ -166,13 +172,13 @@ else{
    <div>
    <h4 style={{color: "#1F7D53"}}> Model training completed successfully! </h4>
    <br/>
-    <strong style={{color: "#7D0A0A"}}>Accuracy</strong><h6>{result[0]}</h6>
+   <h6> <strong style={{color: "#7D0A0A"}}>Accuracy</strong> : {result[0]}</h6>
     <br/>
 
-    <h6 ><strong style={{color: "#7D0A0A"}}>F1 Score</strong>  {result[1]}</h6>
+    <h6 ><strong style={{color: "#7D0A0A"}}>F1 Score</strong> :  {result[1]}</h6>
     <br/>
     
-    <h6 ><strong style={{color: "#7D0A0A"}}> Cross validation Score</strong>  {result[2]}</h6>
+    <h6 ><strong style={{color: "#7D0A0A"}}> Cross validation Score</strong> :  {result[2]}</h6>
     
     
     </div>
@@ -265,8 +271,8 @@ getuserModel={getUserModels}
 </div>   */}
 {/* A31D1D */}
 
- <p style={{color:"red",fontWeight:"bolder"}} onClick={handleShow4}><FontAwesomeIcon  icon={faCircleInfo}  style={{color:"red"}} />  Before uploading, click here to check dataset requirements    </p>  
-<CustomizeInputGroup  text=<h5>Dataset</h5>  className="col" type="file"  onChange= {(event)=>setDataset(event.target.files[0])}   style={{ borderColor: "red", borderWidth: "2px"}} />
+ <p style={{color:"red",fontWeight:"bolder"}} onClick={handleShow4}><FontAwesomeIcon  icon={faCircleInfo}  style={{color:"red"}} />  Before uploading Dataset, click here to check requirements    </p>  
+<CustomizeInputGroup  text=<h5 style={{marginRight:"15px"}}>Dataset</h5>  className="col" type="file"  onChange= {(event)=>setDataset(event.target.files[0])}   style={{ borderColor: "red", borderWidth: "2px",borderRadius:"7px"}} />
 <CustomizeSelectOption 
 text=<h5>Algorithm</h5>
 inputTextStyle={{ width: "120px",height:"50px" }}
@@ -276,17 +282,17 @@ onChange={(event)=>
               setAlogorithm(event.target.value)
             } value={algorithm}
 options={options1} />
-<CustomizeInputGroup text=<h5>Target</h5>  type="text" onChange={(event)=>setTarget(event.target.value)} value={target}  style={{ borderColor: "red", borderWidth: "2px"}} />
+<CustomizeInputGroup text=<h5 style={{marginRight:"10px",marginLeft:"13px"}}>Target</h5>  type="text" onChange={(event)=>setTarget(event.target.value)} value={target}  style={{ borderColor: "red", borderWidth: "2px",borderRadius:"7px"}} />
 
 
 <CustomizeSelectOption 
-text=<h5>Encoding Method</h5>
+text=<h5 >Encoding<h5> Method</h5></h5>
 onChange={(event)=>
               setSelect(event.target.value)
             } value={select}
 
 options={options2}
-inputTextStyle={{ width: "190px",height:"50px" }}
+inputTextStyle={{ width: "120px",height:"50px" ,paddingTop:"20px"}}
 
 />
 

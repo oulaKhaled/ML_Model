@@ -231,6 +231,8 @@ width:200px;
 height: 80px;
   /* margin-top: 10px; */
   background-color:#FF7B7B;
+ position:sticky
+
 
 }
 #button3:hover{
@@ -240,10 +242,66 @@ height: 80px;
 }
 
 
-
+#datafeature{
+    display: grid;
+     
+      grid-template-columns: repeat(2, 1fr);
+   
+}
 #div_1{
  background-color:#AFDDFF;
  width:100%;
  height:100%
 }
 /************ ML USER PAGE **********/
+@media screen and (max-width: 469px) {
+  #datafeature{
+    display: grid;
+      grid-template-columns: 1fr;
+
+  }}
+
+#my_dropmenu{
+  width: 91%;
+ 
+  margin-left: 70px;
+  margin-right: 90px;
+  top: 315px;
+  
+  
+ 
+
+}
+@media screen and (max-width: 1248px) {
+  #my_dropmenu{
+    width: 89%;
+
+  }}
+  @media screen and (max-width: 990px) {
+  #my_dropmenu{
+    width: 86%;
+    top: 350px;
+
+  }}
+   @media screen and (max-width: 875px) {
+  #my_dropmenu{
+    width: 80%;
+    top: 300px;
+
+  }}
+  @media screen and (max-width: 536px) {
+  #my_dropmenu{
+    width: 75%;
+    top: 330px;
+
+  }}
+    @media screen and (max-width: 330px) {
+  #my_dropmenu{
+    width: 63%;
+    top: 350px;
+
+  }}
+
+
+
+
