@@ -7,3 +7,4 @@ FastApi/app/model/*.txt
 /venv
 /.env
 /Modelfile
+FastApi/venv
