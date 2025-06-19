@@ -11,17 +11,17 @@ import { useEffect } from 'react';
 function HomePage(){
 // const history = useHistory();
 const navigate = useNavigate();
+// only for deployment
+// useEffect(()=>{
 
-useEffect(()=>{
+//  const token= localStorage.getItem("token")
+// if(token==null){
 
- const token= localStorage.getItem("token")
-if(token==null){
+//   navigate("/auth")
 
-  navigate("/auth")
+// }
 
-}
-
-},[])
+// },[])
 
 
 

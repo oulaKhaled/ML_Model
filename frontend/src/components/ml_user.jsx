@@ -207,7 +207,7 @@ function Ml_user() {
     <div id="div_1">
       <CustomNavbar />
       <br />
-      <div style={{ position: "fixed", top: "120px", left: "30px", zIndex: 1000 }}>
+      <div style={{ position: "absolute", top: "120px", left: "30px", zIndex: 1000 }}>
         <FontAwesomeIcon onClick={() => {
           navigate("/")
 
@@ -353,8 +353,9 @@ function Ml_user() {
 
       {/* <button onClick={handleShow2}>Show  SECONED Modal</button> */}
 
-      <div style={{ position: "fixed", top: "90px", right: "20px", zIndex: 1000 }}>
-        <h6><strong>info</strong> </h6><FontAwesomeIcon icon={faCircleInfo} size="2x" onClick={handleShow} />
+      <div style={{ position: "absolute", top: "120px", right: "20px", zIndex: 1000 }}>
+       <FontAwesomeIcon icon={faCircleInfo} size="2x" onClick={handleShow} />
+        {/* <h6><strong>info</strong> </h6> */}
       </div>
       <h1  > ML user </h1>
 

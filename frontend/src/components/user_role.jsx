@@ -328,15 +328,15 @@ return(
 <CustomNavbar/>
     <br/>
     
-    <div >
-    <div  style={{ position: "fixed", top: "100px", right: "20px", zIndex: 1000 }}>
- <h6><strong>info</strong></h6> <FontAwesomeIcon id='my_icon' icon={faCircleInfo} size="2x" onClick={handleShow} />
-</div>    {/* onMouseOver={onHover} onMouseLeave={onLeave} */}
+    
+    <div  style={{ position: "absolute", top: "120px",right:"30px", zIndex: 1000 }}>
+ <FontAwesomeIcon  icon={faCircleInfo} size="2x" onClick={handleShow} />
+</div>    {/* onMouseOver={onHover} onMouseLeave={onLeave}  <h6><strong>info</strong></h6> */}
 
 
-    </div>
 
-    <div style={{ position: "fixed", top: "120px",left:"30px", zIndex: 1000 }}>
+
+    <div style={{ position: "absolute", top: "120px",left:"30px", zIndex: 1000 }}>
 <FontAwesomeIcon onClick={()=>{
   navigate("/")
   
