@@ -19,7 +19,7 @@ import '../App.css'
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
-
+import Footer from '../custom_component/footer';
 
 export const token=localStorage.getItem("token");
 
@@ -482,7 +482,7 @@ Powered by machine learning, it analyzes your input to offer a list of likely co
   . Our system uses machine learning to analyze your input and match you with the most suitable medical </p>
  <p > specialty — so you can get the right care, faster</p>
 </div>:null} */}
-
+<Footer top={258}/>
 </div>
 )
 }

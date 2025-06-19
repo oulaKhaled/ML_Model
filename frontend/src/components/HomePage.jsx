@@ -7,6 +7,7 @@ import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
 import CustomizeButton from '../custom_component/button';
 import { useEffect } from 'react';
+import Footer from '../custom_component/footer';
 
 function HomePage(){
 // const history = useHistory();
@@ -40,7 +41,7 @@ function handleClickDoctor() {
     
       }
   return(
-    // id="homepage" 
+        // id="homepage" 
     <div   >
      <CustomNavbar/>
   
@@ -61,7 +62,7 @@ function handleClickDoctor() {
    
 
 </div>
-  
+<Footer top={216}/>
     </div>
 )
 

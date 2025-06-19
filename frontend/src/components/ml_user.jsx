@@ -22,6 +22,7 @@ import { faCircleDot } from '@fortawesome/free-solid-svg-icons';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import Papa from "papaparse"
+import Footer from '../custom_component/footer';
 const options1 = [
   { value: "decisiontree", label: "Decision Tree" },
   { value: "randomforest", label: "Random forest" },
@@ -205,6 +206,7 @@ function Ml_user() {
 
   return (
     <div id="div_1">
+   
       <CustomNavbar />
       <br />
       <div style={{ position: "absolute", top: "120px", left: "30px", zIndex: 1000 }}>
@@ -418,6 +420,8 @@ onChange= {(event)=> setDataset(event.target.files[0])}
         handleShow3()
         getUserModels()
       }} className="col-sm-4" id="button3" name=<h5>select model that trained before</h5> style={{ marginLeft: "40px" }} />
+
+<Footer top={148}/>
 
     </div>
 

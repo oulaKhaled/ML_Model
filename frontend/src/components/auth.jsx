@@ -9,7 +9,7 @@ import { data, useNavigate} from "react-router-dom";
 import { useState } from 'react';
 import api from '../api';
 import CustomizeInputGroup from '../custom_component/input';
-
+import Footer from '../custom_component/footer';
 function Auth(){
 
 const [account,setAccount]=useState(true)
@@ -184,6 +184,7 @@ const onChangeConfirmPassword=(event)=>{
                }
         
             </div>
+            <Footer top={130}/>
                 </div>         
             
              

@@ -7,7 +7,7 @@ function CustomizeButton(props){
 
  <Button   id={props.id} onClick={props.onClick} style={props.style}>{props.name}</Button> 
 
-    )
+)
 }
 
 export default CustomizeButton
