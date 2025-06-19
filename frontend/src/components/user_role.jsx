@@ -354,7 +354,7 @@ return(
   
   
  <br/>
-<CustomizeInputGroup value={value}   onChange={onChange}  style={{height:"60px"}} />
+<CustomizeInputGroup value={value}   onChange={onChange}  style={{height:"60px",borderColor: "red", borderWidth: "2px", borderRadius: "7px" }} />
 
 {/* <button onClick={()=>{console.log(value)}}> BUTTON </button> */}
 

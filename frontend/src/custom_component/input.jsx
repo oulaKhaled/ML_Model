@@ -10,7 +10,7 @@ function CustomizeInputGroup(props){
         
         // style={{ paddingBottom:"30px",paddingTop:"30px",paddingLeft:"20px",paddingRight:"20px"}}
 <div style={{marginLeft:"70px",marginRight:"70px",marginTop:"10px"}}>
-        <InputGroup size="lg" className="mb-3" >
+        <InputGroup size="lg" className="mb-3"  >
         
                   <InputGroup.Text id="inputGroup-sizing-sm" >{props.text}</InputGroup.Text>
                   <Form.Control
