@@ -23,7 +23,10 @@ api.interceptors.response.use( (response)=>response,
         localStorage.removeItem("token");
         alert("Looks like your session timed out. Please log in again.")
         window.location.href="/auth"
+    
     }
+
+
     return Promise.reject(error)
 });
 

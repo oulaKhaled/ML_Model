@@ -54,8 +54,8 @@ function handleClickDoctor() {
     <h3> Get started by choosing your role.</h3>
 
      <div  className='row' style={{justifyContent:"center"}}>
-     <CustomizeButton id="button2" name=<h3>Doctor</h3> onClick={handleClickDoctor}/>
-     <CustomizeButton id="button2" name=<h3>Pateint</h3> onClick={handleClickPatient}/>
+     <CustomizeButton id="button2" name=<h3>Disease</h3> onClick={handleClickDoctor}/>
+     <CustomizeButton id="button2" name=<h3>Doctor Speciality</h3> onClick={handleClickPatient}/>
      <CustomizeButton id="button2" name=<h3>ML User</h3> onClick={handleClickMl_user}/>
      </div>
    

@@ -14,6 +14,7 @@ function CustomizeInputGroup(props){
         
                   <InputGroup.Text id="inputGroup-sizing-sm" >{props.text}</InputGroup.Text>
                   <Form.Control
+                  accept={props.accept}
                     type={props.type}
                     style={props.style}
                    value={props.value}  

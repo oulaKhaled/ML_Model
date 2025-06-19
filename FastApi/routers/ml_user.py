@@ -35,6 +35,8 @@ from FastApi.core import models
 from typing import Annotated
 from FastApi.routers.oauth import get_currnet_user
 from fastapi import Form
+import csv
+from tempfile import NamedTemporaryFile
 
 router = APIRouter()
 
@@ -250,7 +252,7 @@ def fit_model(x, y, final_model):
 
 
 @router.post("/train_model", response_model=None)
-def train_model(
+async def train_model(
     # select: str,
     # algorithm: str,
     # target: str,
@@ -265,7 +267,7 @@ def train_model(
     ## dataset validation, csv
 
     if not dataset.content_type == "text/csv":
-        raise HTTPException(status_code=401, detail="Only Accepts .csv Files")
+        raise HTTPException(status_code=400, detail="Only Accepts .csv Files")
 
     x, y, data_features, encoder = data_preprocessing(
         dataset=dataset.file, target=target, select=select

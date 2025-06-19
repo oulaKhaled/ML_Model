@@ -1,5 +1,5 @@
 import '../App.css'
-import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
+import { faCircleInfo, faL } from '@fortawesome/free-solid-svg-icons';
 import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
 import InputGroup from 'react-bootstrap/InputGroup';
@@ -21,17 +21,18 @@ import CustomizedModel from '../custom_component/modal';
 import { faCircleDot } from '@fortawesome/free-solid-svg-icons';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
-const options1=[
-   { value: "decisiontree", label: "Decision Tree" },
-    { value: "randomforest", label: "Random forest" },
-    { value: "logisticregression", label: "Logistic Regression" },
-    { value: "svm", label: "SVM" },
-    { value: "knn", label: "KNN" },
-    ]
-const options2=[
-   { value: "first", label: "One Hot Encoding" },
-    { value: "second", label: "Label Encoding" },
-    ]
+import Papa from "papaparse"
+const options1 = [
+  { value: "decisiontree", label: "Decision Tree" },
+  { value: "randomforest", label: "Random forest" },
+  { value: "logisticregression", label: "Logistic Regression" },
+  { value: "svm", label: "SVM" },
+  { value: "knn", label: "KNN" },
+]
+const options2 = [
+  { value: "first", label: "One Hot Encoding" },
+  { value: "second", label: "Label Encoding" },
+]
 function Ml_user() {
   const [show, setShow] = useState(false);
   const [show2, setShow2] = useState(false);
@@ -39,105 +40,181 @@ function Ml_user() {
   const [show3, setShow3] = useState(false);
   const [show4, setShow4] = useState(false);
 
-const navigate=useNavigate();
+  const navigate = useNavigate();
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-  const handleClose2 = () => setShow2(false);
+
+
   const handleShow2 = () => setShow2(true);
-   const handleClose3 = () => setShow3(false);
+  const handleClose3 = () => setShow3(false);
   const handleShow3 = () => setShow3(true);
-     const handleClose4 = () => setShow4(false);
+  const handleClose4 = () => setShow4(false);
   const handleShow4 = () => setShow4(true);
 
-  const [dataset,setDataset]=useState([]);
-  const[algorithm,setAlogorithm]=useState(options1[0].value);
-  const[target,setTarget]=useState("");
-  const [select,setSelect]=useState(options2[0].value);
-  const [showResult,SetshowResult]=useState(false);
-  const [result,setResult]=useState([])
-  const [trainedModels,getTrainedModels]=useState([])
-  
+  const [dataset, setDataset] = useState([]);
+  const [algorithm, setAlogorithm] = useState(options1[0].value);
+  const [target, setTarget] = useState("");
+  const [select, setSelect] = useState(options2[0].value);
+  const [showResult, SetshowResult] = useState(false);
+  const [result, setResult] = useState([])
+  const [trainedModels, getTrainedModels] = useState([])
+  const [error, setError] = useState("");
+  const[datasetError,setDatasetError]=useState(false);
+  const handleClose2 = () => {
 
-  
-  
-  
-  const train_model=async()=>{
-    const formData= new FormData();
-    formData.append("dataset",dataset)
-    formData.append("select",select)
-    formData.append("algorithm",algorithm)
-    formData.append("target",target)
-    try{
-      const response=await api.post("/train_model",formData,
-    
-  );
-  if(response.status==200){
-    console.log("response : ",response.data["The new model has been saved successfully"]);
-    SetshowResult(true);
-    setResult(response.data["The new model has been saved successfully"]);
-    console.log("data features",response.data["The new model has been saved successfully"][3]);
-
-    
-  
-  
+    setShow2(false);
   }
 
-    else{
-      console.log("something went wrong ,",response.status);
-      SetshowResult(false);
-    }
-    }
+  const handleButton = () => {
+    handleClose2();
+    // console.log("yes I closed modal 2");
+
+    // setAlogorithm("");
+    //     setDataset([]);
+    //     setTarget("");
+    //     setSelect("");
+    //     showResult(false);
+
+  }
+
+
+
+
+  const train_model = async () => {
    
-    catch(error){
-      console.log(error);
+    if(datasetError){
+       console.log("Dataset is not in required fromat, Please read instructions again before uploading a dataset");
+             SetshowResult(false);
+            
+            setError("Dataset is not in required fromat, Please read instructions again before uploading a dataset");
+
+    }
+    else{
+       console.log("I have been called, Train model ");
+    setError("");
+    const formData = new FormData();
+    formData.append("dataset", dataset)
+    formData.append("select", select)
+    formData.append("algorithm", algorithm)
+    formData.append("target", target)
+         try {
+      const response = await api.post("/train_model", formData,
+
+      );
+      if (response.status == 200) {
       
+
+
+        console.log("response : ", response.data["The new model has been saved successfully"]);
+        SetshowResult(true);
+        setResult(response.data["The new model has been saved successfully"]);
+        console.log("data features", response.data["The new model has been saved successfully"][3]);
+      }
+
+      // else if(response.status==500){
+      //   SetshowResult(false);
+      //   setError("Target is not exist in the Dataset,Please Enter a valid Target",response.status);
+      //   // SetshowResult(false);
+
+      // }
     }
-    
+
+    catch (error) {
+      console.log("Somthing went wrong here ", error);
+
+      SetshowResult(false);
+        console.log("Target does not exist here ");
+        
+        setError("Target is not exist in the Dataset,Please Enter a valid Target")
+      if (error.response.status == 422) {
+        SetshowResult(false);
+
+        setError("Please Enter all fields");
+
+      }
+  
+
+
+
+    }
+
+    }
+ 
+
   }
-  
 
 
 
-  const getUserModels=async()=>{
-    try{
-      const response=await api.get("/user_model",);
-if(response.status==200){
-  console.log("Here is models that you trained before",response.data);
-  getTrainedModels(response.data)
-}
-else{
-  console.log("Something went wrong");
-  
-}
+
+  const getUserModels = async () => {
+    try {
+      const response = await api.get("/user_model",);
+      if (response.status == 200) {
+        console.log("Here is models that you trained before", response.data);
+        getTrainedModels(response.data)
+      }
+      else {
+        console.log("Something went wrong");
+
+      }
     }
-    catch(error){
+    catch (error) {
       console.error(error)
     }
-   
+
 
   }
 
-// let x=4
-// for (let i=0;i<(trainedModels.length()/4);i++){
-//   for(let j=x;j<x+4;j++){
-//     <p>{trainedModels[j]}</p>
-//   }
-//   x=x+4
-// }
+
+
+  const handleDataset = (event) => {
+    setDataset(event.target.files[0]);
+    Papa.parse(event.target.files[0], {
+      header: true,
+      skipEmptyLines: true,
+      complete: function (result) {
+        const columnsNames = result["meta"]["fields"];
+        if (columnsNames[0] !== "Disease") {
+          SetshowResult(false);
+          setError("Dataset is not in required fromat, Please read instructions again before uploading a dataset");
+
+        }
+        for (var i = 1; i < columnsNames.length; i++) {
+          if (`Symptom_${i}` === columnsNames[i]) {
+              setDatasetError(false);
+            console.log("Each column is correct ", columnsNames[i]);
+
+          }
+          else {
+            setDatasetError(true);
+            // console.log("Dataset is not in required fromat, Please read instructions again before uploading a dataset");
+            //  SetshowResult(false);
+            
+            // setError("Dataset is not in required fromat, Please read instructions again before uploading a dataset");
+
+              break;
+          }
+        }
+
+      }
+    })
+
+
+  }
 
 
   return (
     <div id="div_1">
       <CustomNavbar />
       <br />
-      <div style={{ position: "fixed", top: "120px",left:"30px", zIndex: 1000 }}>
-      <FontAwesomeIcon onClick={()=>{
-        navigate("/")
-        
-      }} icon={faHouse} size="2x" />
+      <div style={{ position: "fixed", top: "120px", left: "30px", zIndex: 1000 }}>
+        <FontAwesomeIcon onClick={() => {
+          navigate("/")
+
+        }} icon={faHouse} size="2x" />
       </div>
-      
-{/******************* * FIRST MODAL (info) ************************/}
+
+      {/******************* * FIRST MODAL (info) ************************/}
 
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
@@ -158,59 +235,80 @@ else{
         </Modal.Footer>
       </Modal>
 
-{/************************* SECONED MODAL (get trained model results) ****************************/}
+      {/************************* SECONED MODAL (get trained model results) ****************************/}
 
-   <Modal show={show2} onHide={handleClose2} >
+      <Modal show={show2} onHide={handleClose2} >
         <Modal.Header closeButton>
         </Modal.Header>
         <Modal.Body  >
-        <div style={{ padding:10,display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
+          <div style={{ padding: 10, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
 
-<br/>
-{
-   showResult ?
-   <div>
-   <h4 style={{color: "#1F7D53"}}> Model training completed successfully! </h4>
-   <br/>
-   <h6> <strong style={{color: "#7D0A0A"}}>Accuracy</strong> : {result[0]}</h6>
-    <br/>
+            <br />
+            {
+              showResult == true && error == "" ?
+                <div>
+                  <h4 style={{ color: "#1F7D53" }}> Model training completed successfully! </h4>
+                  <br />
+                  <h6> <strong style={{ color: "#7D0A0A" }}>Accuracy</strong> : {result[0]}</h6>
+                  <br />
 
-    <h6 ><strong style={{color: "#7D0A0A"}}>F1 Score</strong> :  {result[1]}</h6>
-    <br/>
-    
-    <h6 ><strong style={{color: "#7D0A0A"}}> Cross validation Score</strong> :  {result[2]}</h6>
-    
-    
-    </div>
-  
-  : dataset.length!==0 && algorithm!== "" && target!=="" && select!==""?
-  <div>
-<h5> Please Wait , Your model is training now </h5>
+                  <h6 ><strong style={{ color: "#7D0A0A" }}>F1 Score</strong> :  {result[1]}</h6>
+                  <br />
 
-  <svg  viewBox="25 25 50 50" className="rotating-circle">
-  <circle  id="my_circle"  r="20" cy="50" cx="50"></circle>
-</svg>
-  </div> :<div><h5 style={{color:"red"}}>Please Enter all fileds</h5></div>  
+                  <h6 ><strong style={{ color: "#7D0A0A" }}> Cross validation Score</strong> :  {result[2]}</h6>
 
-}
 
-</div>
+                </div>
+
+                : showResult == false && error == "" ?
+                  <div>
+                    <h5> Please Wait , Your model is training now </h5>
+                    <p>{error}</p>
+                    <svg viewBox="25 25 50 50" className="rotating-circle">
+                      <circle id="my_circle" r="20" cy="50" cx="50"></circle>
+                    </svg>
+                  </div> :
+                  showResult == false && error != "" ?
+
+
+                    <div>
+                      <h5 style={{ color: "red" }}> {error}</h5>
+
+                    </div> : null
+
+
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          </div>
         </Modal.Body>
         <Modal.Footer>
-<Button onClick={handleClose2} style={{ backgroundColor:"#FF7B7B"}}><h5>Ok</h5></Button>
+          <Button onClick={handleButton} style={{ backgroundColor: "#FF7B7B" }}><h5>Ok</h5></Button>
 
         </Modal.Footer>
       </Modal>
 
-{/* ***********************THIRD MODAL (show user History)************************ */}
-<CustomizedModel 
-show3={show3} 
-handleClose3={handleClose3} 
-trainedModels={trainedModels}
-handleShow3={handleShow3}
-getuserModel={getUserModels}
-/>
-{/******************* * FOURTH MODAL ( Dataset info) ************************/}
+      {/* ***********************THIRD MODAL (show user History)************************ */}
+      <CustomizedModel
+        show3={show3}
+        handleClose3={handleClose3}
+        trainedModels={trainedModels}
+        handleShow3={handleShow3}
+        getuserModel={getUserModels}
+      />
+      {/******************* * FOURTH MODAL ( Dataset info) ************************/}
 
       <Modal show={show4} onHide={handleClose4}>
         <Modal.Header closeButton>
@@ -219,30 +317,30 @@ getuserModel={getUserModels}
         <Modal.Body>
 
 
-        <h6 style={{color:"#A31D1D"}}>This tool is designed for 
-        experimentation using clean, symptom-based datasets that follow a specific structure 
-        (like the one provided). While you are allowed to upload any dataset, </h6>
+          <h6 style={{ color: "#A31D1D" }}>This tool is designed for
+            experimentation using clean, symptom-based datasets that follow a specific structure
+            (like the one provided). While you are allowed to upload any dataset, </h6>
 
 
-<h6><strong style={{color:"#A31D1D"}}>Please note:</strong></h6>
-<h6  style={{color:"#003092"}}><strong >If your dataset does not meet the required format and structure, the results may be inaccurate, misleading, or entirely invalid.</strong> </h6>
-<h6 style={{color:"#003092"}}>This tool is not intended for real-world use or critical decision-making. Any predictions made using datasets that do not follow the recommended format should not be taken seriously, and this project holds no responsibility for such results.. </h6>   
-<br/>
-<h4>Required Format</h4>
-<h6 style={{color:"green"}}><strong>Your dataset should be a CSV file.</strong></h6>
-<h6>It must include:</h6>
+          <h6><strong style={{ color: "#A31D1D" }}>Please note:</strong></h6>
+          <h6 style={{ color: "#003092" }}><strong >If your dataset does not meet the required format and structure, the results may be inaccurate, misleading, or entirely invalid.</strong> </h6>
+          <h6 style={{ color: "#003092" }}>This tool is not intended for real-world use or critical decision-making. Any predictions made using datasets that do not follow the recommended format should not be taken seriously, and this project holds no responsibility for such results.. </h6>
+          <br />
+          <h4>Required Format</h4>
+          <h6 style={{ color: "green" }}><strong>Your dataset should be a CSV file.</strong></h6>
+          <h6>It must include:</h6>
 
-<h6> <FontAwesomeIcon size='xs' icon={faCircleDot} style={{color:"red"}}/> One column named (or acting as) Disease – the target variable.</h6>
-<h6> <FontAwesomeIcon  size='xs' icon={faCircleDot} style={{color:"red"}}/> Several columns named like Symptom_1, Symptom_2, ..., Symptom_17, each representing a symptom.</h6>
-<h6> <FontAwesomeIcon size='xs' icon={faCircleDot} style={{color:"red"}} /> All values must be in text format (categorical), even if they are null/missing in some rows.</h6>
-<h6> <FontAwesomeIcon  size='xs' icon={faCircleDot} style={{color:"red"}} /> A maximum of 17 symptom columns is expected. Missing symptom columns should be filled with empty values (NaN).</h6>
-<br/>  
-{/* <h6   style={{color:"#A31D1D"}}>To ensure meaningful outcomes, please use properly structured, labeled, and preprocessed data as outlined in the dataset guidelines.
+          <h6> <FontAwesomeIcon size='xs' icon={faCircleDot} style={{ color: "red" }} /> One column named (or acting as) Disease – the target variable.</h6>
+          <h6> <FontAwesomeIcon size='xs' icon={faCircleDot} style={{ color: "red" }} /> Several columns named like Symptom_1, Symptom_2, ..., Symptom_17, each representing a symptom.</h6>
+          <h6> <FontAwesomeIcon size='xs' icon={faCircleDot} style={{ color: "red" }} /> All values must be in text format (categorical), even if they are null/missing in some rows.</h6>
+          <h6> <FontAwesomeIcon size='xs' icon={faCircleDot} style={{ color: "red" }} /> A maximum of 17 symptom columns is expected. Missing symptom columns should be filled with empty values (NaN).</h6>
+          <br />
+          {/* <h6   style={{color:"#A31D1D"}}>To ensure meaningful outcomes, please use properly structured, labeled, and preprocessed data as outlined in the dataset guidelines.
 </h6>       */}
-{/* <h5  style={{color:"red"}}>Important </h5> */}
+          {/* <h5  style={{color:"red"}}>Important </h5> */}
 
-  
-        
+
+
         </Modal.Body>
         <Modal.Footer>
 
@@ -253,64 +351,74 @@ getuserModel={getUserModels}
 
 
 
-{/* <button onClick={handleShow2}>Show  SECONED Modal</button> */}
+      {/* <button onClick={handleShow2}>Show  SECONED Modal</button> */}
 
       <div style={{ position: "fixed", top: "90px", right: "20px", zIndex: 1000 }}>
- <h6><strong>info</strong> </h6><FontAwesomeIcon icon={faCircleInfo} size="2x" onClick={handleShow} />
-</div>
-<h1  > ML user </h1>
+        <h6><strong>info</strong> </h6><FontAwesomeIcon icon={faCircleInfo} size="2x" onClick={handleShow} />
+      </div>
+      <h1  > ML user </h1>
 
-   <h5  >Would you Like upload a dataset to predict a spesific Target?</h5>
+      <h5  >Would you Like upload a dataset to predict a spesific Target?</h5>
 
-<br/>
+      <br />
 
 
-{/* <div style={{padding:"100px"}}>
+      {/* <div style={{padding:"100px"}}>
 
 
 </div>   */}
-{/* A31D1D */}
+      {/* A31D1D */}
 
- <p style={{color:"red",fontWeight:"bolder"}} onClick={handleShow4}><FontAwesomeIcon  icon={faCircleInfo}  style={{color:"red"}} />  Before uploading Dataset, click here to check requirements    </p>  
-<CustomizeInputGroup  text=<h5 style={{marginRight:"15px"}}>Dataset</h5>  className="col" type="file"  onChange= {(event)=>setDataset(event.target.files[0])}   style={{ borderColor: "red", borderWidth: "2px",borderRadius:"7px"}} />
-<CustomizeSelectOption 
-text=<h5>Algorithm</h5>
-inputTextStyle={{ width: "120px",height:"50px" }}
-
-
-onChange={(event)=>
-              setAlogorithm(event.target.value)
-            } value={algorithm}
-options={options1} />
-<CustomizeInputGroup text=<h5 style={{marginRight:"10px",marginLeft:"13px"}}>Target</h5>  type="text" onChange={(event)=>setTarget(event.target.value)} value={target}  style={{ borderColor: "red", borderWidth: "2px",borderRadius:"7px"}} />
+      <p style={{ color: "red", fontWeight: "bolder" }} onClick={handleShow4}><FontAwesomeIcon icon={faCircleInfo} style={{ color: "red" }} />  Before uploading Dataset, click here to check requirements    </p>
+      <CustomizeInputGroup accept=".csv" text=<h5 style={{ marginRight: "15px" }}>Dataset</h5> className="col" type="file"
+        onChange={handleDataset}
+        style={{ borderColor: "red", borderWidth: "2px", borderRadius: "7px" }} />
+      {/* <button 
+onClick={handlefile}
+> click to parse</button> 
+onChange= {(event)=> setDataset(event.target.files[0])}  
+*/}
 
 
-<CustomizeSelectOption 
-text=<h5 >Encoding<h5> Method</h5></h5>
-onChange={(event)=>
-              setSelect(event.target.value)
-            } value={select}
-
-options={options2}
-inputTextStyle={{ width: "120px",height:"50px" ,paddingTop:"20px"}}
-
-/>
+      <CustomizeSelectOption
+        text=<h5>Algorithm</h5>
+        inputTextStyle={{ width: "120px", height: "50px" }}
 
 
+        onChange={(event) =>
+          setAlogorithm(event.target.value)
+        } value={algorithm}
+        options={options1} />
+      <CustomizeInputGroup text=<h5 style={{ marginRight: "10px", marginLeft: "13px" }}>Target</h5> type="text" onChange={(event) => setTarget(event.target.value)} value={target} style={{ borderColor: "red", borderWidth: "2px", borderRadius: "7px" }} />
+
+
+      <CustomizeSelectOption
+        text=<h5 >Encoding<h5> Method</h5></h5>
+        onChange={(event) =>
+          setSelect(event.target.value)
+        } value={select}
+
+        options={options2}
+        inputTextStyle={{ width: "120px", height: "50px", paddingTop: "20px" }}
+
+      />
 
 
 
-<CustomizeButton onClick={()=>{
-        console.log(dataset,algorithm,select,target); 
+
+
+      <CustomizeButton onClick={() => {
+        console.log(dataset, algorithm, select, target);
         handleShow2()
         train_model()
-      
-        }} className="col-sm-4" id="button3" name=<h4>Train</h4>  style={{marginRight:"40px"}}/>
-<CustomizeButton onClick={()=>{
-  handleShow3()
-  getUserModels()}} className="col-sm-4" id="button3" name=<h5>select model that trained before</h5> style={{marginLeft:"40px" }}/>
 
-   </div>
+      }} className="col-sm-4" id="button3" name=<h4>Train</h4> style={{ marginRight: "40px" }} />
+      <CustomizeButton onClick={() => {
+        handleShow3()
+        getUserModels()
+      }} className="col-sm-4" id="button3" name=<h5>select model that trained before</h5> style={{ marginLeft: "40px" }} />
+
+    </div>
 
   )
 }
